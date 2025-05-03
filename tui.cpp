@@ -98,12 +98,16 @@ void BufferWindow::update()
     box(win, 0, 0);
 
     mvwprintw(win, 0, 2, "| %d | ", id);
-    wprintw(win, name.c_str());
 
     if (p)
     {
+        wprintw(win, name.c_str());
+
         double timepos = p->getCurrentPos();
         wprintw(win, " | %.2f |", timepos);
+
+        mvwprintw( win, 2, 2, "loop[%.2f, %.2f]", p->getLoopStart(), p->getLoopEnd() );
+        mvwprintw( win, 3, 2, "speed[%.2f]", p->getSpeed() );
     }
 
     wnoutrefresh(win);
