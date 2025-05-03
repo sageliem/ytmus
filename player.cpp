@@ -11,7 +11,9 @@ Player::Player()
     loop_start{ 0.0 },
     loop_end{ std::numeric_limits<double>::max() },
     path {},
-    duration {}
+    duration {},
+    port{},
+    rate{ 1.0 }
 {
     mpv = mpv_create();
     std::cout << "Created mpv instance\n";
@@ -30,7 +32,8 @@ Player::~Player()
 }
 
 // Load a video
-void Player::load(const std::string &url) {
+void Player::load(const std::string &url) 
+{
     path = url;
     const char *load_cmd[] = {"loadfile", url.c_str(), "replace", NULL};
     std::cout << "Attempting to load file at " << url << '\n';
@@ -53,9 +56,23 @@ void Player::load(const std::string &url) {
     // Could add functionality to hide or show video
 }
 
+/* TODO
+// Initialize JACK port
+void Player::init_audio(const std::string &port_name, jack_client_t* client) 
+{
+    port = jack_port_register(client, port_name.c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+}
+*/
+
+//TODO Fill audio buffers
+void Player::fill_audio(float* buffer, int n_frames)
+{
+    // TODO
+}
+
 void Player::update() 
 {
-    mpv_event *event = mpv_wait_event(mpv, 0.1); // non-blocking
+    mpv_event *event = mpv_wait_event(mpv, 0.0); // non-blocking
     if (event->event_id == MPV_EVENT_END_FILE) 
     {
         restart();
@@ -135,6 +152,10 @@ void Player::set_loop_end(double end) {
     } else {
         loop_end = loop_start + 0.1;
     }
+}
+
+void Player::set_rate(double new_rate) {
+    mpv_set_property(mpv, "speed", MPV_FORMAT_DOUBLE, &new_rate);
 }
 
 // Jump to timestamp
