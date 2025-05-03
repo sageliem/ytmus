@@ -7,8 +7,3 @@ controls.
 - [ncurses](https://invisible-island.net/ncurses/)
 - [RtMidi](https://github.com/thestk/rtmidi)
 - [JACK](https://jackaudio.org/)
-## Planned features
-- Flexible/modular control (OSC, GPIO, livecoding, etc)
-- SuperCollider audio processing engine
-- Configurable routing to other applications
-- terminal-based YouTube searching
