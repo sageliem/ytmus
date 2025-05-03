@@ -1,0 +1,30 @@
+knobs 176
+1: CC112 (113 on press)
+2: CC74
+3: CC71
+4: CC76
+5: CC77
+6: CC93
+7: CC73
+8: CC75
+9: CC114 (115 on press)
+10: CC18
+11: CC19
+12: CC16
+13: CC17
+14: CC91
+15: CC79
+16: CC72
+
+pads
+    noteon 153
+    noteoff 137
+    aftertouch 169
+1 36 ()
+2 37
+3 38
+4 39
+5 40
+6 41
+7 42
+8 43
