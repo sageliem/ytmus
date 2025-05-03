@@ -39,7 +39,8 @@ public:
     double getDuration();
     double getLoopStart();
     double getLoopEnd();
-
+    double getSpeed();
+    std::string getPath();
 
     // Maybe make private
     void fill_audio(float* buffer, int n_frames);

@@ -22,7 +22,13 @@ Player::Player()
     std::cout << "Initialized mpv instance\n";
 
     // Defaults (no video)
-    mpv_set_option_string(mpv, "vo", "null");
+//    mpv_set_option_string(mpv, "vo", "null");
+    
+    // Video on
+    mpv_set_option_string(mpv, "vo", "gpu-next");
+    mpv_set_option_string(mpv, "gpu-api", "vulkan");
+    mpv_set_option_string(mpv, "hwdec", "auto-safe");
+
 }
 
 Player::~Player()
@@ -56,6 +62,7 @@ void Player::load(const std::string &url)
     // Could add functionality to hide or show video
 }
 
+
 /* TODO
 // Initialize JACK port
 void Player::init_audio(const std::string &port_name, jack_client_t* client) 
@@ -82,7 +89,7 @@ void Player::update()
         double currentPos = getCurrentPos();
         if (currentPos > loop_end || currentPos < loop_start-0.1) {
             seek(loop_start);
-            std::cout << "Looping\n";
+//            std::cout << "Looping\n";
         }
     }
 }
@@ -92,6 +99,11 @@ bool Player::isPlaying() {
     int paused{ 0 };
     mpv_get_property(mpv, "paused", MPV_FORMAT_FLAG, &paused);
     return !paused;
+}
+
+std::string Player::getPath()
+{
+    return path;
 }
 
 double Player::getCurrentPos() {
@@ -110,6 +122,11 @@ double Player::getLoopStart() {
 
 double Player::getLoopEnd() {
     return loop_end;
+}
+
+double Player::getSpeed()
+{
+    return rate;
 }
 
 
@@ -155,6 +172,7 @@ void Player::set_loop_end(double end) {
 }
 
 void Player::set_rate(double new_rate) {
+    rate = new_rate;
     mpv_set_property(mpv, "speed", MPV_FORMAT_DOUBLE, &new_rate);
 }
 
