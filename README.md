@@ -1,4 +1,4 @@
-# MPV/SuperCollider live sampler
+# MPV live sampler
 ## Description
 Sampler/looper streaming live from media streams (local or internet). MIDI
 controls.
