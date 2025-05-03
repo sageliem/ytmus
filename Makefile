@@ -1,9 +1,9 @@
 # Compiler
 CC = clang++
 CFLAGS = -Wall -g
-LDFLAGS = -L/usr/local/lib -lmpv -lrtmidi # Link MPV
+LDFLAGS = -L/usr/local/lib -lmpv -lrtmidi -lncurses
 
-SRC = main.cpp player.cpp
+SRC = main.cpp player.cpp tui.cpp midictl.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = ytcc2
 
