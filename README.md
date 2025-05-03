@@ -11,5 +11,4 @@ controls.
 - Flexible/modular control (OSC, GPIO, livecoding, etc)
 - SuperCollider audio processing engine
 - Configurable routing to other applications
-- Embedded raspberry pi hardware unit
 - terminal-based YouTube searching
