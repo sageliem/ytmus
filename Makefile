@@ -20,4 +20,4 @@ $(TARGET): $(OBJ)
 
 # Clean
 clean:
-	rm -f $(OBJ) 
+	rm -f $(OBJ) .*~ *~
