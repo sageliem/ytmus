@@ -2,7 +2,7 @@
 
 #include "tui.hpp"
 
-// Main TUI app
+// Create TUI app class
 TuiApp::TuiApp()
   : width{},
     height{}
@@ -12,7 +12,7 @@ TuiApp::TuiApp()
     }
 }
 
-
+// setup(): enter ncurses mode and create windows
 void TuiApp::setup() 
 {
     initscr();
@@ -22,26 +22,24 @@ void TuiApp::setup()
     }
 }
 
+// Load buffer window object at index id with Player
 void TuiApp::load_buffer( const int id, Player *p )
 {
     windows[id]->load_player(p);
 }
 
+// Called each frame, updates each window and then displays to screen
 void TuiApp::update()
 {
-//    werase(stdscr);
-    //box(stdscr, 0, 0);
-    
     for (std::unique_ptr<BufferWindow> &window : windows)
     {
         window->update();
     }
-
-
     
     doupdate();
 }
 
+// Closes windows, main screen, and exits ncurses mode
 void TuiApp::close()
 {
     for (std::unique_ptr<BufferWindow> &window : windows)
@@ -53,8 +51,7 @@ void TuiApp::close()
 }
 
 
-
-// Window class for each buffer
+// Window class created for each buffer
 BufferWindow::BufferWindow(const char id_init)
   : p { nullptr },
     win { nullptr },
@@ -63,7 +60,7 @@ BufferWindow::BufferWindow(const char id_init)
     active { false }
 {}
 
-// Create window
+// Create window displaying player info
 void BufferWindow::setup(Player *p_init, const int h_init, const int w_init, const int y_init, const int x_init)
 {
     height = h_init;
@@ -78,6 +75,7 @@ void BufferWindow::setup(Player *p_init, const int h_init, const int w_init, con
     load_player(p_init);
 }
 
+// Redirect buffer window to a different player
 void BufferWindow::load_player(Player *p_new)
 {
     p = p_new;
@@ -87,7 +85,7 @@ void BufferWindow::load_player(Player *p_new)
     }
 }
 
-// Update window each frame
+// Update window each frame, displaying player info if available
 void BufferWindow::update()
 {
     werase(win);
@@ -96,6 +94,7 @@ void BufferWindow::update()
 
     mvwprintw(win, 0, 2, "| %d | ", id);
 
+    // Display player info if player is loaded
     if (p)
     {
         wprintw(win, name.c_str());
@@ -109,10 +108,11 @@ void BufferWindow::update()
         mvwprintw( win, 5, 2, "volume[%.2f]", p->getVolume() );
     }
 
+    // Print contents to virtual screen
     wnoutrefresh(win);
 }
 
-// Close a buffer window element
+// Close buffer window element
 void BufferWindow::close()
 {
     delwin(win);

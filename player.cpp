@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cstdio>
 
+// Constructor for Player object
 Player::Player() 
   : loop{ false },
     loop_start{},
@@ -38,9 +39,9 @@ Player::Player()
     // May have to replace with a command if using more filters
     // Needs to be named filter @rb to access later
     mpv_set_option_string(mpv, "af", "@rb:rubberband=pitch-scale=1.0");
-
 }
 
+// Destructor terminates mpv and destroys mpv client object
 Player::~Player()
 {
     mpv_terminate_destroy(mpv);
@@ -57,20 +58,19 @@ void Player::load(const std::string &url)
 
     // Wait for load successful
     bool loaded = false;
-    while (!loaded) {
+    while (!loaded)
+    {
         mpv_event *event = mpv_wait_event(mpv, 0); // wait for an event (non-blocking)
-        if (event->event_id == MPV_EVENT_FILE_LOADED) {
-            std::cout << "File loaded: " << path << std::endl;
-            loaded = true;
-        } 
+        if (event->event_id == MPV_EVENT_FILE_LOADED) loaded = true;
     }
+    std::cout << "File loaded: " << path << std::endl;
 
+    // Get video title
     mpv_get_property(mpv, "media-title", MPV_FORMAT_STRING, &title);
 
-    // Query duration
+    // Set duration
     mpv_get_property(mpv, "duration", MPV_FORMAT_DOUBLE, &duration);
     loop_end = duration;
-//    std::cout << "Duration: " << duration << '\n';
 
     // Could add functionality to hide or show video
 }
@@ -99,59 +99,76 @@ void Player::update()
     else
     {
         double currentPos = getCurrentPos();
-        if (currentPos > loop_end || currentPos < loop_start-0.1) {
+        if ( ( currentPos > loop_end ) || ( currentPos < loop_start-0.1 ) ) 
+        {
             seek(loop_start);
-//            std::cout << "Looping\n";
         }
     }
 }
 
+// Private helpers
+// Check if timestamp is within video length
+bool Player::isValidTimestamp( double timestamp )
+{
+    return ( ( timestamp >= 0 ) && ( timestamp <= duration ) );
+}
+
+
 // Getters
+// Playing or paused
 bool Player::isPlaying() {
     int paused{ 0 };
     mpv_get_property(mpv, "paused", MPV_FORMAT_FLAG, &paused);
     return !paused;
 }
 
+// URL or file path
 std::string Player::getPath()
 {
     return path;
 }
 
+// Current time-pos
 double Player::getCurrentPos() {
     double currentPos{};
-    mpv_get_property(mpv, "time-pos", MPV_FORMAT_DOUBLE, &currentPos);
+    mpv_get_property( mpv, "time-pos", MPV_FORMAT_DOUBLE, &currentPos );
     return currentPos;
 }
 
+// File duration
 double Player::getDuration() {
     return duration;
 }
 
+// Loop start
 double Player::getLoopStart() {
     return loop_start;
 }
 
+// Loop end
 double Player::getLoopEnd() {
     return loop_end;
 }
 
+// Playback speed
 double Player::getSpeed()
 {
     return rate;
 }
 
+// Pitch shift (in semitones)
 double Player::getPitch()
 {
     return pitch;
 }
 
+// Volume (double in range 0.0-100.0)
 double Player::getVolume()
 {
     return volume;
 }
 
-
+// Title as std::string
 std::string Player::getTitle()
 {
     std::string title_str (title);
@@ -162,7 +179,7 @@ std::string Player::getTitle()
 // Playback controls
 // Play
 void Player::play() {
-    int paused = 0;
+    int paused = 0; // TODO check if this is necessary, could be null if not
     mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &paused);
 }
 
@@ -174,6 +191,8 @@ void Player::pause() {
 
 // Set loop start and end
 void Player::set_loop(double start, double end) {
+    if (!isValidTimestamp(start) || !isValidTimestamp( end )) return;
+
     loop_start = start;
     if (end > start + 0.1) {
         loop_end = end;
@@ -184,15 +203,22 @@ void Player::set_loop(double start, double end) {
 
 // Set loop start
 void Player::set_loop_start(double start) {
-    if (start < loop_end - 0.1) {
+    if ( !isValidTimestamp( start ) ) return;
+
+    if (start < loop_end - 0.1) 
+    {
         loop_start = start;
-    } else {
+    } 
+    else 
+    {
         loop_start = loop_end - 0.1;
     }
 } 
 
 // Set loop end
 void Player::set_loop_end(double end) {
+    if ( !isValidTimestamp( end ) ) return;
+
     if (end > loop_start + 0.1)
     {
         loop_end = end; 
@@ -205,6 +231,8 @@ void Player::set_loop_end(double end) {
 
 void Player::set_loop_length(double length)
 {
+    loop_end = loop_start + loop_length;
+    if ( !isValidTimestamp( loop_end ) ) return;
     loop_length = length;
     set_loop_end( loop_start + length );
 }
@@ -238,6 +266,7 @@ void Player::setFinePitch( double newFinePitch )
 
 void Player::setVolume( double vol )
 {
+    if ( vol <= 0.0 || vol >= 100.0 ) return;
     volume = vol;
     mpv_set_property(mpv, "volume", MPV_FORMAT_DOUBLE, &volume);
 //    std::cout << "Mpv set property succeeded\n";
@@ -246,6 +275,8 @@ void Player::setVolume( double vol )
 
 // Jump to timestamp
 void Player::seek(double seek_pos) {
+    if ( !isValidTimestamp( seek_pos ) ) return;
+
     std::string seek_pos_str{ std::to_string(seek_pos) };
     const char *seek_cmd[] = {"seek", seek_pos_str.c_str(), "absolute", NULL};
     mpv_command(mpv, seek_cmd);

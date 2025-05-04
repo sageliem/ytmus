@@ -91,10 +91,13 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
 // Initialize midi controller, select port
 void MidiController::setup(Controller* controller)
 {
+    // Get port count
     unsigned int nPorts { midi.getPortCount() };
     std::cout << "There are " << nPorts << " MIDI input sources available.\n";
-    std::string portName;
 
+    std::string portName; // Stores current port name
+
+    // List available ports
     for ( unsigned int i=0; i<nPorts; i++ )
     {
         try
@@ -110,10 +113,12 @@ void MidiController::setup(Controller* controller)
         std::cout << "  Input Port #" << i << ": " << portName << '\n';
     }
 
+    // Get port selection from user
     unsigned int portNum;
     std::cout << "Select a port: ";
     std::cin >> portNum;
 
+    // Attempt to open selected port
     try
     {
         midi.openPort( portNum );
@@ -126,13 +131,14 @@ void MidiController::setup(Controller* controller)
 
     std::cout << "Listening on port " << midi.getPortName() << '\n';
 
+    // Ignore special messages (reduces number of callbacks)
     midi.ignoreTypes(true, true, true);
 
-    // Pass pointer to controller object
-    midi.setCallback(&midiCallback, controller);
-
+    // Set callback function, pass pointer to controller object
+    midi.setCallback( &midiCallback, controller );
 }
 
+// Placeholder, not needed currently
 void MidiController::update()
 {
     return;

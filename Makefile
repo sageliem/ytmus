@@ -5,7 +5,7 @@ LDFLAGS = -L/usr/local/lib -lmpv -lrtmidi -lncurses
 
 SRC = main.cpp player.cpp tui.cpp midictl.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
-TARGET = ytcc2
+TARGET = ytmus
 
 # Target
 all: $(TARGET)

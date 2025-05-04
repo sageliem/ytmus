@@ -23,6 +23,8 @@ class Player
     double pitch;
     double volume;
 
+    bool isValidTimestamp( double timestamp );
+
 public:
     Player();
     ~Player();

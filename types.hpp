@@ -1,5 +1,4 @@
-// enumerations used throughout project
-//
+// Enumerations used throughout project
 
 #pragma once
 

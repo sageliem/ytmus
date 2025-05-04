@@ -37,4 +37,3 @@ public:
     void load_buffer(const int id, Player *p);
 };
 
-

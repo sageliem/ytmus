@@ -3,11 +3,13 @@
 
 #include <iostream>
 
+// Create an instance of Controller holding pointer to array of Players
 Controller::Controller(std::array<Player, 8>* players)
   : players { players },
     active { 0 }
 {}
 
+// Handles a control event. Called by MidiController (rename to MidiHandler). TODO implement other Handler objects (OSC, keyboard control, etc)
 void Controller::handleControlEvent(controlEvent type, int value)
 {
     // Placeholder code to fix out of range issues
@@ -44,33 +46,40 @@ void Controller::handleControlEvent(controlEvent type, int value)
     }
 }
 
-// Helper function to get ratio from MIDI integer value (0-127)
+// HELPER METHODS
+// Scale MIDI event value to range [0.0, 0.1]
 double Controller::normalizeMidiValue( int value ) 
 {
     return static_cast<double>(value) / 127.0;
 }
 
+// CONTROL METHODS (mostly passthrough, maybe refactor into switch statement)
+// Calls seek function on active player
 void Controller::ctlSeek( double value )
 {
     players->at(active).seek( players->at(active).getDuration() * value );
 }
 
+// Calls loop start on player
 void Controller::ctlLoopStart( double value )
 {
     players->at(active).set_loop_start( players->at(active).getDuration() * value );
 }
 
+// Calls loop length on player
 void Controller::ctlLoopLength( double value )
 {
     double maxLength = 16; // Intervals of 0.063 seconds per MIDI CC value
     players->at(active).set_loop_length( value * maxLength);
 }
 
+// Calls loop end on active player
 void Controller::ctlLoopEnd( double value )
 {
     players->at(active).set_loop_end( players->at(active).getDuration() * value );
 }
 
+// Calls speed control on active player
 void Controller::ctlSpeed( double value )
 {
     double max_speed = 4.0; 
@@ -78,6 +87,7 @@ void Controller::ctlSpeed( double value )
     players->at(active).set_rate( speed );
 }
 
+// Calls pitch control on active player
 void Controller::ctlPitch( double value )
 {
     // Map to integer range -12 - 12
@@ -85,13 +95,14 @@ void Controller::ctlPitch( double value )
     players->at(active).setPitch( semitones );
 }
 
+// Calls volume control on active player
 void Controller::ctlVolume( double value )
 {
     double volume = value * 100;
     players->at(active).setVolume( volume );
-    std::cout << "Controller worked\n"
 }
 
+// Changes currently selected buffer
 void Controller::ctlBufSelect( int value )
 {
     // Handle Arturia minilab presets (Placeholder)
@@ -100,5 +111,4 @@ void Controller::ctlBufSelect( int value )
     active = value - 48;
 //    std::cout << "Set active buffer to " << value -48 << '\n';
 }
-
 

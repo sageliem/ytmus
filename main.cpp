@@ -41,10 +41,7 @@ int main() {
 //    p.load("https://www.youtube.com/watch?v=5Dkf6UUfwQk&list=PLuoCvADUeA_KmRoDuAu4zWRksB8lnpkKC&index=20"); // Neanic
 //    p.load("https://www.youtube.com/watch?v=CxPSbe8xNyQ"); // Grant Gordy
 //    players[0].load("./handpan.wav");
-//
-//
-//
-//
+
     players[0].load("https://www.youtube.com/watch?v=oxQmec6gGV0&pp=ygUWcGVhY2UgZXZlcnl0aGluZyBzdGF5cw%3D%3D");
     players[1].load("https://www.youtube.com/shorts/HzfMYiGj7M4");
     players[2].load("https://www.youtube.com/watch?v=FY1CwzIjoJQ");
