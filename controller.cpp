@@ -13,69 +13,83 @@ void Controller::handleControlEvent(controlEvent type, int value)
     // Placeholder code to fix out of range issues
     if (type == SELECT_BUFFER && value == 0) return; 
 
+    double normalizedValue = normalizeMidiValue( value );
+
     switch ( type )
     {
     case CHANGE_SPEED:
-        ctlSpeed( value );
+        ctlSpeed( normalizedValue );
         break;
     case LOOP_START:
-        ctlLoopStart( value );
+        ctlLoopStart( normalizedValue );
         break;
     case LOOP_END:
-        ctlLoopEnd( value );
+        ctlLoopEnd( normalizedValue );
+        break;
+    case LOOP_LENGTH:
+        ctlLoopLength( normalizedValue );
         break;
     case SEEK:
-        ctlSeek( value );
+        ctlSeek( normalizedValue );
         break;
     case SELECT_BUFFER:
         ctlBufSelect( value );
         break;
     case CHANGE_PITCH:
-        ctlPitch( value );
+        ctlPitch( normalizedValue );
         break;
     case CHANGE_VOLUME:
-        ctlVolume( value );
+        ctlVolume( normalizedValue );
         break;
     }
 }
 
-void Controller::ctlSeek( int value )
+// Helper function to get ratio from MIDI integer value (0-127)
+double Controller::normalizeMidiValue( int value ) 
 {
-    players->at(active).seek( players->at(active).getDuration() / 127.0 * value );
+    return static_cast<double>(value) / 127.0;
 }
 
-void Controller::ctlLoopStart( int value )
+void Controller::ctlSeek( double value )
 {
-    players->at(active).set_loop_start( players->at(active).getDuration() / 127.0 * value );
-
+    players->at(active).seek( players->at(active).getDuration() * value );
 }
 
-void Controller::ctlLoopEnd( int value )
+void Controller::ctlLoopStart( double value )
 {
-    players->at(active).set_loop_end( players->at(active).getDuration() / 127.0 * value );
-
+    players->at(active).set_loop_start( players->at(active).getDuration() * value );
 }
 
-void Controller::ctlSpeed( int value )
+void Controller::ctlLoopLength( double value )
 {
-    double max_speed = 4.0;
-    // Min speed 0.25 with audio
-    players->at(active).set_rate( value / 127.0 * (max_speed-0.25) + 0.25 );
-
+    double maxLength = 16; // Intervals of 0.063 seconds per MIDI CC value
+    players->at(active).set_loop_length( value * maxLength);
 }
 
-void Controller::ctlPitch( int value )
+void Controller::ctlLoopEnd( double value )
+{
+    players->at(active).set_loop_end( players->at(active).getDuration() * value );
+}
+
+void Controller::ctlSpeed( double value )
+{
+    double max_speed = 4.0; 
+    double speed = value * (max_speed-0.25) + 0.25; // Min speed is 0.25 with audio
+    players->at(active).set_rate( speed );
+}
+
+void Controller::ctlPitch( double value )
 {
     // Map to integer range -12 - 12
-    double normalized = static_cast<double>(value) / 127.0;
-    int semitones = static_cast<int>(normalized * 24) - 12;
+    int semitones = static_cast<int>(value * 24) - 12;
     players->at(active).setPitch( semitones );
 }
 
-void Controller::ctlVolume( int value )
+void Controller::ctlVolume( double value )
 {
-    double volume = static_cast<double>(value) / 127.0 * 100;
+    double volume = value * 100;
     players->at(active).setVolume( volume );
+    std::cout << "Controller worked\n"
 }
 
 void Controller::ctlBufSelect( int value )

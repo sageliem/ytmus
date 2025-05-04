@@ -12,13 +12,15 @@ class Controller
     std::array<Player, 8>* players;
     int active;
 
-    void ctlSeek(int value);
-    void ctlLoopStart(int value);
-    void ctlLoopEnd(int value);
-    void ctlSpeed(int value);
+    double normalizeMidiValue( int value ); // Normalize MIDI event value 0.0-1.0
+    void ctlSeek( double value );
+    void ctlLoopStart( double value );
+    void ctlLoopEnd( double value );
+    void ctlLoopLength( double value );
+    void ctlSpeed( double value );
     void ctlBufSelect( int value );
-    void ctlPitch( int value );
-    void ctlVolume( int value );
+    void ctlPitch( double value );
+    void ctlVolume( double value );
 
 public:
     Controller(std::array<Player, 8>* players);
