@@ -4,16 +4,18 @@
 
 #include "player.hpp"
 #include <iostream>
-#include <limits>
+#include <cstdio>
 
 Player::Player() 
   : loop{ false },
-    loop_start{ 0.0 },
-    loop_end{ std::numeric_limits<double>::max() },
-    path {},
+    loop_start{},
+    loop_end{},
+    path{},
+    title{},
     duration {},
     port{},
-    rate{ 1.0 }
+    rate{ 1.0 },
+    pitch{ 0.0 }
 {
     mpv = mpv_create();
     std::cout << "Created mpv instance\n";
@@ -24,10 +26,17 @@ Player::Player()
     // Defaults (no video)
 //    mpv_set_option_string(mpv, "vo", "null");
     
-    // Video on
+    // Video on? Doesn't work
     mpv_set_option_string(mpv, "vo", "gpu-next");
     mpv_set_option_string(mpv, "gpu-api", "vulkan");
     mpv_set_option_string(mpv, "hwdec", "auto-safe");
+
+    // Set my latest yt-dlp version (TODO)
+    mpv_set_option_string(mpv, "script-opts", "ytdl_hook-ytdl_path=/Users/sageliem/.pyenv/shims/yt-dlp");
+
+    // May have to replace with a command if using more filters
+    // Needs to be named filter @rb to access later
+    mpv_set_option_string(mpv, "af", "@rb:rubberband=pitch-scale=1.0");
 
 }
 
@@ -55,9 +64,13 @@ void Player::load(const std::string &url)
         } 
     }
 
+    mpv_get_property(mpv, "media-title", MPV_FORMAT_STRING, &title);
+
     // Query duration
     mpv_get_property(mpv, "duration", MPV_FORMAT_DOUBLE, &duration);
-    std::cout << "Duration: " << duration << '\n';
+
+    loop_end = duration;
+//    std::cout << "Duration: " << duration << '\n';
 
     // Could add functionality to hide or show video
 }
@@ -129,6 +142,23 @@ double Player::getSpeed()
     return rate;
 }
 
+double Player::getPitch()
+{
+    return pitch;
+}
+
+double Player::getVolume()
+{
+    return volume;
+}
+
+
+std::string Player::getTitle()
+{
+    std::string title_str (title);
+    return title_str;
+}
+
 
 // Playback controls
 // Play
@@ -176,6 +206,31 @@ void Player::set_rate(double new_rate) {
     mpv_set_property(mpv, "speed", MPV_FORMAT_DOUBLE, &new_rate);
 }
 
+void Player::setPitch( int semitones )
+{
+    double semitone_ratio = 1.0595;
+    double pitch_ratio = pow( semitone_ratio, static_cast<double>(semitones) );
+    pitch = semitones;
+
+    char pitch_ratio_str[64];
+    snprintf(pitch_ratio_str, sizeof(pitch_ratio_str), "%.8f", pitch_ratio);
+
+    const char *pitch_cmd[] = { "af-command", "rb", "set-pitch", pitch_ratio_str, NULL };
+
+    mpv_command( mpv, pitch_cmd );
+
+//    std::cout << "Set Pitch to " << semitones << " Ratio: " << pitch_ratio_str << '\n';
+}
+
+
+void Player::setVolume( double vol )
+{
+    volume = vol;
+    mpv_set_property(mpv, "volume", MPV_FORMAT_DOUBLE, &volume);
+//    std::cout << "Mpv set property succeeded\n";
+}
+
+
 // Jump to timestamp
 void Player::seek(double seek_pos) {
     std::string seek_pos_str{ std::to_string(seek_pos) };
@@ -186,5 +241,6 @@ void Player::seek(double seek_pos) {
 // Restart video
 void Player::restart() {
     seek(0.0);
+    play();
 }
 

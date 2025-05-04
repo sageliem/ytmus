@@ -28,3 +28,10 @@ pads
 6 41
 7 42
 8 43
+
+
+
+
+Keys
+middle octave
+C48

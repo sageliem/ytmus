@@ -46,12 +46,27 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
                 controlType = LOOP_END;
                 controlValue = value;
                 break;
+            // Knob 6 PITCH
+            case 93:
+                controlType = CHANGE_PITCH;
+                controlValue = value;
+                break;
+            // Knob 10 VOLUME
+            case 18:
+                controlType = CHANGE_VOLUME;
+                controlValue = value;
+                break;
             }
-            break;
+
 
         // NOTE_ON
         case 0x9:
-//            std::cout << "NoteON\n";
+            if ( number>=48 && number<=56 )
+            {
+                controlType = SELECT_BUFFER;
+                controlValue = number;
+            }
+//            std::cout << "NoteOn number " << number << "\n";
             break;
 
         // NOTE_OFF

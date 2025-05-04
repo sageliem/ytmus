@@ -1,6 +1,8 @@
 #include "controller.hpp"
 #include "player.hpp"
 
+#include <iostream>
+
 Controller::Controller(std::array<Player, 8>* players)
   : players { players },
     active { 0 }
@@ -8,6 +10,9 @@ Controller::Controller(std::array<Player, 8>* players)
 
 void Controller::handleControlEvent(controlEvent type, int value)
 {
+    // Placeholder code to fix out of range issues
+    if (type == SELECT_BUFFER && value == 0) return; 
+
     switch ( type )
     {
     case CHANGE_SPEED:
@@ -24,6 +29,13 @@ void Controller::handleControlEvent(controlEvent type, int value)
         break;
     case SELECT_BUFFER:
         ctlBufSelect( value );
+        break;
+    case CHANGE_PITCH:
+        ctlPitch( value );
+        break;
+    case CHANGE_VOLUME:
+        ctlVolume( value );
+        break;
     }
 }
 
@@ -52,11 +64,27 @@ void Controller::ctlSpeed( int value )
 
 }
 
+void Controller::ctlPitch( int value )
+{
+    // Map to integer range -12 - 12
+    double normalized = static_cast<double>(value) / 127.0;
+    int semitones = static_cast<int>(normalized * 24) - 12;
+    players->at(active).setPitch( semitones );
+}
+
+void Controller::ctlVolume( int value )
+{
+    double volume = static_cast<double>(value) / 127.0 * 100;
+    players->at(active).setVolume( volume );
+}
+
 void Controller::ctlBufSelect( int value )
 {
     // Handle Arturia minilab presets (Placeholder)
     // TODO abstraction
-    active = value - 28;
+//    std::cout << "Received BufferSelect " << value << '\n';
+    active = value - 48;
+//    std::cout << "Set active buffer to " << value -48 << '\n';
 }
 
 

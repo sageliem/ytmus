@@ -17,6 +17,8 @@ class Controller
     void ctlLoopEnd(int value);
     void ctlSpeed(int value);
     void ctlBufSelect( int value );
+    void ctlPitch( int value );
+    void ctlVolume( int value );
 
 public:
     Controller(std::array<Player, 8>* players);

@@ -75,10 +75,7 @@ void BufferWindow::setup(Player *p_init, const int h_init, const int w_init, con
     // Initialize window element
     win = newwin(height, width, y, x);
 
-    p = p_init;
-    if (p) {
-        name = p->getPath();
-    }
+    load_player(p_init);
 }
 
 void BufferWindow::load_player(Player *p_new)
@@ -86,7 +83,7 @@ void BufferWindow::load_player(Player *p_new)
     p = p_new;
     if (p)
     {
-        name = p->getPath();
+        name = p->getTitle();
     }
 }
 
@@ -108,6 +105,8 @@ void BufferWindow::update()
 
         mvwprintw( win, 2, 2, "loop[%.2f, %.2f]", p->getLoopStart(), p->getLoopEnd() );
         mvwprintw( win, 3, 2, "speed[%.2f]", p->getSpeed() );
+        mvwprintw( win, 4, 2, "pitch[%.2f]", p->getPitch() );
+        mvwprintw( win, 5, 2, "volume[%.2f]", p->getVolume() );
     }
 
     wnoutrefresh(win);

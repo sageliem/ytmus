@@ -8,16 +8,19 @@ extern "C" {
 }
 
 // Player struct
-class Player {
+class Player 
+{
     mpv_handle *mpv;
     jack_port_t* port;
     std::string path;
+    char* title;
     bool loop;
     double loop_start;
     double loop_end;
     double duration;
     double rate;
-
+    double pitch;
+    double volume;
 
 public:
     Player();
@@ -33,6 +36,10 @@ public:
     void set_rate(double new_rate);
     void seek(double pos);
     void restart();
+    void setPitch(int semitones);
+    void setVolume(double vol);
+//    void pitchUpSemitone();
+//    void pitchDownSemitone();
 
     bool isPlaying();
     double getCurrentPos();
@@ -40,7 +47,10 @@ public:
     double getLoopStart();
     double getLoopEnd();
     double getSpeed();
+    double getPitch();
+    double getVolume();
     std::string getPath();
+    std::string getTitle();
 
     // Maybe make private
     void fill_audio(float* buffer, int n_frames);
