@@ -1,7 +1,6 @@
 #pragma once
 
 #include <rtmidi/RtMidi.h>
-#include <array>
 
 enum midiEvent
 {
