@@ -10,6 +10,7 @@ Player::Player()
   : loop{ false },
     loop_start{},
     loop_end{},
+    loop_length{},
     path{},
     title{},
     duration {},
@@ -68,13 +69,11 @@ void Player::load(const std::string &url)
 
     // Query duration
     mpv_get_property(mpv, "duration", MPV_FORMAT_DOUBLE, &duration);
-
     loop_end = duration;
 //    std::cout << "Duration: " << duration << '\n';
 
     // Could add functionality to hide or show video
 }
-
 
 /* TODO
 // Initialize JACK port
@@ -194,11 +193,20 @@ void Player::set_loop_start(double start) {
 
 // Set loop end
 void Player::set_loop_end(double end) {
-    if (end > loop_start + 0.1) {
+    if (end > loop_start + 0.1)
+    {
         loop_end = end; 
-    } else {
+    }
+    else 
+    {
         loop_end = loop_start + 0.1;
     }
+}
+
+void Player::set_loop_length(double length)
+{
+    loop_length = length;
+    set_loop_end( loop_start + length );
 }
 
 void Player::set_rate(double new_rate) {
@@ -220,6 +228,11 @@ void Player::setPitch( int semitones )
     mpv_command( mpv, pitch_cmd );
 
 //    std::cout << "Set Pitch to " << semitones << " Ratio: " << pitch_ratio_str << '\n';
+}
+
+void Player::setFinePitch( double newFinePitch )
+{
+    //TODO
 }
 
 

@@ -17,6 +17,7 @@ class Player
     bool loop;
     double loop_start;
     double loop_end;
+    double loop_length;
     double duration;
     double rate;
     double pitch;
@@ -33,10 +34,12 @@ public:
     void set_loop(double start, double end);
     void set_loop_start(double start);
     void set_loop_end(double end);
+    void set_loop_length(double length);
     void set_rate(double new_rate);
     void seek(double pos);
     void restart();
     void setPitch(int semitones);
+    void setFinePitch( double newFinePitch );
     void setVolume(double vol);
 //    void pitchUpSemitone();
 //    void pitchDownSemitone();
