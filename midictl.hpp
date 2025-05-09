@@ -9,7 +9,7 @@ enum midiEvent
 
 class Controller;
 
-class MidiController{
+class MidiHandler{
     RtMidiIn midi;
 //    void midiCallback(double deltatime, std::vector<unsigned char>* message, void* userData);
 public:

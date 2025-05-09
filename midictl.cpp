@@ -43,7 +43,7 @@ controlEvent midiCCEventType( int midiCCNumber )
 
 
 // Called each MIDI event
-// TODO refactor into MidiController class
+// TODO refactor into MidiHandler class
 void midiCallback(double deltatime, std::vector<unsigned char>* message, void* userData)
 {
     // Filter out nonstandard message types
@@ -89,7 +89,7 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
 
 
 // Initialize midi controller, select port
-void MidiController::setup(Controller* controller)
+void MidiHandler::setup(Controller* controller)
 {
     // Get port count
     unsigned int nPorts { midi.getPortCount() };
@@ -139,7 +139,7 @@ void MidiController::setup(Controller* controller)
 }
 
 // Placeholder, not needed currently
-void MidiController::update()
+void MidiHandler::update()
 {
     return;
 }

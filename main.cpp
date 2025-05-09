@@ -31,7 +31,7 @@ int main() {
 
 
     // Set up MIDI control
-    MidiController midi;
+    MidiHandler midi;
     midi.setup( &controller );
 
     // Initialize players
