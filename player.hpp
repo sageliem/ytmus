@@ -54,6 +54,7 @@ public:
     double getSpeed();
     double getPitch();
     double getVolume();
+    double getProgress();
     std::string getPath();
     std::string getTitle();
 

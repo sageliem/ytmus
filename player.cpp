@@ -4,6 +4,7 @@
 
 #include "player.hpp"
 #include <iostream>
+#include <cmath>
 #include <cstdio>
 
 // Constructor for Player object
@@ -173,6 +174,11 @@ std::string Player::getTitle()
 {
     std::string title_str (title);
     return title_str;
+}
+
+double Player::getProgress()
+{
+	return getCurrentPos() / getDuration();
 }
 
 
