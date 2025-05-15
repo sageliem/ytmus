@@ -3,7 +3,7 @@ CC = clang++
 CFLAGS = -Wall -g
 LDFLAGS = -L/usr/local/lib -lmpv -lrtmidi -lncurses
 
-SRC = main.cpp player.cpp tui.cpp midictl.cpp controller.cpp
+SRC = main.cpp player.cpp tui.cpp midihandler.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = ytmus
 

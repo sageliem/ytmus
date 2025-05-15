@@ -3,7 +3,7 @@
 
 #include "player.hpp"
 #include "controller.hpp"
-#include "midictl.hpp"
+#include "midihandler.hpp"
 #include "tui.hpp"
 
 /*
