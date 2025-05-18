@@ -2,6 +2,7 @@
 
 #include <ncurses.h>
 #include "player.hpp"
+#include <memory>
 #include <string>
 #include <array>
 
@@ -28,7 +29,7 @@ class TuiApp
 {
     int width;
     int height;
-    std::array<std::unique_ptr<BufferWindow>, 8> windows;
+    std::array< std::unique_ptr<BufferWindow>, 8 > windows;
 public:
     TuiApp();
     void setup();

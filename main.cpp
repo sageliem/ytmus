@@ -42,7 +42,7 @@ int main() {
 //    p.load("https://www.youtube.com/watch?v=CxPSbe8xNyQ"); // Grant Gordy
 //    players[0].load("./handpan.wav");
 
-    players[0].load("https://www.youtube.com/watch?v=oxQmec6gGV0&pp=ygUWcGVhY2UgZXZlcnl0aGluZyBzdGF5cw%3D%3D");
+    players[0].load("https://www.youtube.com/watch?v=oxQmec6gGV0");
     players[1].load("https://www.youtube.com/shorts/HzfMYiGj7M4");
     players[2].load("https://www.youtube.com/watch?v=FY1CwzIjoJQ");
     players[3].load("https://www.youtube.com/watch?v=ngfBSBoYzUY");
