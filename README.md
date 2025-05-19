@@ -8,3 +8,4 @@ controls.
 - yt-dlp
 - [ncurses](https://invisible-island.net/ncurses/)
 - [RtMidi](https://github.com/thestk/rtmidi)
+- [liblo](https://liblo.sourceforge.net/)
