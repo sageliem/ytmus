@@ -4,6 +4,7 @@
 #include "player.hpp"
 #include "controller.hpp"
 #include "midihandler.hpp"
+#include "oschandler.hpp"
 #include "tui.hpp"
 
 /*
@@ -19,11 +20,19 @@ int process(jack_nframes_t nframes, void* players) {
 
 int main() {
 
+
+    // Testing for OscHandler
+    OscHandler osc(9000);
+
+
+
+
     std::array<Player, 8> players {};
     
     Controller controller ( &players );
+    osc.init( &controller );
 
-    bool showUi = true;
+    bool showUi = false;
 
 
 //    jack_client_t* jack = jack_client_open("ytcc", JackNullOption, nullptr);
