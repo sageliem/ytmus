@@ -9,14 +9,13 @@
 
 // Constructor for Player object
 Player::Player() 
-  : loop{ false },
+//  : port{},
+  : path{},
+    title{},
     loop_start{},
     loop_end{},
     loop_length{},
-    path{},
-    title{},
     duration {},
-    port{},
     rate{ 1.0 },
     pitch{ 0.0 }
 {

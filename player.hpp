@@ -11,10 +11,9 @@ extern "C" {
 class Player 
 {
     mpv_handle *mpv;
-    jack_port_t* port;
+//    jack_port_t* port;
     std::string path;
     char* title;
-    bool loop;
     double loop_start;
     double loop_end;
     double loop_length;
