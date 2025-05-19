@@ -13,6 +13,8 @@ class Controller
     int active;
 
     double normalizeMidiValue( int value ); // Normalize MIDI event value 0.0-1.0
+                                            
+public:
     void ctlSeek( double value );
     void ctlLoopStart( double value );
     void ctlLoopEnd( double value );
@@ -22,7 +24,7 @@ class Controller
     void ctlPitch( double value );
     void ctlVolume( double value );
 
-public:
+
     Controller(std::array<Player, 8>* players);
     void handleControlEvent(controlEvent type, int value);
 };
