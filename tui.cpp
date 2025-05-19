@@ -28,6 +28,12 @@ void TuiApp::load_buffer( const int id, Player *p )
     windows[id]->load_player(p);
 }
 
+//TODO
+void TuiApp::setActiveBuffer( const int id )
+{
+
+}
+
 // Called each frame, updates each window and then displays to screen
 void TuiApp::update()
 {
@@ -53,11 +59,10 @@ void TuiApp::close()
 
 // Window class created for each buffer
 BufferWindow::BufferWindow(const char id_init)
-  : p { nullptr },
-    win { nullptr },
+  : win { nullptr },
+    p { nullptr },
     id { id_init },
-    name { "" },
-    active { false }
+    name { "" }
 {}
 
 // Create window displaying player info
@@ -97,8 +102,8 @@ void BufferWindow::update()
     // Display player info if player is loaded
     if (p)
     {
-        wprintw(win, name.c_str());
-
+        wprintw(win, "%s", name.c_str());
+            
         double timepos = p->getCurrentPos();
         wprintw(win, " | %.2f |", timepos);
 

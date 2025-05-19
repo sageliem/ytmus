@@ -12,7 +12,6 @@ class BufferWindow
     Player *p; 
     const char id;
     std::string name;
-    bool active;
     int height;
     int width;
     int x;
@@ -36,5 +35,6 @@ public:
     void update();
     void close();
     void load_buffer(const int id, Player *p);
+    void setActiveBuffer(const int id);
 };
 
