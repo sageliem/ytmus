@@ -50,8 +50,8 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
     if ( message->size() != 3 ) return; 
 
     // Output values
-    controlEvent controlType;
-    int controlValue;
+    controlEvent controlType { SELECT_BUFFER };
+    int controlValue { 0 };
 
     // TODO clean up types
     unsigned int status = static_cast<unsigned int>( (*message)[0] ); // Message type
