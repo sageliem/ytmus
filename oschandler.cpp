@@ -1,12 +1,15 @@
 // OSC handler
 
 #include "oschandler.hpp"
+#include "controller.hpp"
+
 #include <iostream>
 #include <unistd.h>
 
 OscHandler::OscHandler( int thread_init )
   : thread { thread_init },
-    received { 0 }
+    received { 0 },
+    controller { nullptr }
 {
     if ( !thread.is_valid() )
     {
@@ -24,15 +27,61 @@ OscHandler::OscHandler( int thread_init )
 
 void OscHandler::init( Controller* controller )
 {
+    this->controller = controller;
 
     // Add handler methods
     thread.add_method( "/test", "i",
         [this](lo_arg **argv, int)
         {
             std::cout << "/test (" << (++received) << "): "
+            // To access argv: index it, then access correct data type
             << argv[0] -> i << '\n';
+
+            return 0;
         }
     );
+
+    // Handler for seek messages
+    thread.add_method( "/seek", "if",
+            [this](lo_arg **argv, int)
+            {
+                this->controller->ctlBufSelect( argv[0] -> i );
+                this->controller->ctlSeek( argv[1] -> f );
+
+                std::cout << "Argv[0] is " << argv[0] -> i << '\n';
+                std::cout << "Argv[1] is " << argv[1] -> f << '\n';
+
+                return 0;
+            });
+
+    // Handler for mute messages
+    thread.add_method( "/seek", "if",
+            [this](lo_arg **argv, int)
+            {
+                this->controller->ctlBufSelect( argv[0] -> i );
+                this->controller->ctlSeek( argv[1] -> f );
+
+                std::cout << "Argv[0] is " << argv[0] -> i << '\n';
+                std::cout << "Argv[1] is " << argv[1] -> f << '\n';
+
+                return 0;
+            });
+
+    // Handler for seek messages
+    thread.add_method( "/seek", "if",
+            [this](lo_arg **argv, int)
+            {
+                this->controller->ctlBufSelect( argv[0] -> i );
+                this->controller->ctlSeek( argv[1] -> f );
+
+                std::cout << "Argv[0] is " << argv[0] -> i << '\n';
+                std::cout << "Argv[1] is " << argv[1] -> f << '\n';
+
+                return 0;
+            });
+
+
+
 
     thread.start();
 
@@ -40,6 +89,8 @@ void OscHandler::init( Controller* controller )
     lo::Address a( "localhost", "9000" );
 
     a.send( "/test", "i", 7890987 );
+    // seek test
+    a.send( "/seek", "if", 1, 3.1415f );
 
 
     int tries = 200;

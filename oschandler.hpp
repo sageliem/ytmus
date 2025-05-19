@@ -15,6 +15,7 @@ class OscHandler
 {
     lo::ServerThread thread;
     std::atomic<int> received;
+    Controller* controller;
 public:
     OscHandler(int thread_init);
     void init(Controller* controller);
