@@ -1,11 +1,15 @@
 # Compiler
 CC = clang++
-CFLAGS = -Wall -g
+CFLAGS = -Wall -Werror -g
 LDFLAGS = -L/usr/local/lib -lmpv -lrtmidi -lncurses
 
-SRC = main.cpp player.cpp tui.cpp midihandler.cpp controller.cpp
+
+SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = ytmus
+
+INCLUDE = -I/usr/local/include -I./include
+CFLAGS += $(INCLUDE)
 
 # Target
 all: $(TARGET)
@@ -15,8 +19,8 @@ $(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 # Compile
-%.o: %.c
-	$(CC) $(CFLAGS) -I/usr/local/include -c $<
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $<
 
 # Clean
 clean:
