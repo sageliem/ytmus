@@ -45,11 +45,12 @@ void OscHandler::init( Controller* controller )
     thread.add_method( "/seek", "if",
             [this](lo_arg **argv, int)
             {
+                std::cout << "Received a seek message\n";
                 this->controller->ctlBufSelect( argv[0] -> i );
-                this->controller->ctlSeek( argv[1] -> f );
+                std::cout << "Argv[0] is " << argv[0] -> i32 << '\n';
+                std::cout << "Argv[1] is " << argv[1] -> f32 << '\n';
+                this->controller->ctlSeek( static_cast<double>(argv[1] -> f32) );
 
-                std::cout << "Argv[0] is " << argv[0] -> i << '\n';
-                std::cout << "Argv[1] is " << argv[1] -> f << '\n';
 
                 return 0;
             });
@@ -85,18 +86,20 @@ void OscHandler::init( Controller* controller )
 
     thread.start();
 
+    /*
     // Send some test messages
-    lo::Address a( "localhost", "9000" );
+    lo::Address a( "localhost", "5050" );
 
     a.send( "/test", "i", 7890987 );
     // seek test
     a.send( "/seek", "if", 1, 3.1415f );
+    */
 
 
-    int tries = 200;
-    while (received < 1 && --tries > 0)
+    int tries = 2000;
+    while (received < 20 && --tries > 0)
     {
-        usleep(20*1000);
+        usleep(30*1000);
     }
 
     if (tries <= 0)
