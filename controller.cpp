@@ -57,7 +57,9 @@ double Controller::normalizeMidiValue( int value )
 // Calls seek function on active player
 void Controller::ctlSeek( double value )
 {
-    players->at(active).seek( players->at(active).getDuration() * value );
+    std::cout << "ctlSeek: " << value << '\n';
+//    players->at(active).seek( players->at(active).getDuration() * value );
+    players->at(active).seek( value );
 }
 
 // Calls loop start on player
@@ -108,7 +110,7 @@ void Controller::ctlBufSelect( int value )
     // Handle Arturia minilab presets (Placeholder)
     // TODO abstraction
 //    std::cout << "Received BufferSelect " << value << '\n';
-    active = value - 48;
+    active = value;
 //    std::cout << "Set active buffer to " << value -48 << '\n';
 }
 
