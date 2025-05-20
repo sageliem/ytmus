@@ -22,7 +22,7 @@ int main() {
 
 
     // Testing for OscHandler
-    OscHandler osc(9000);
+    OscHandler osc(5050);
 
 
 
@@ -30,7 +30,6 @@ int main() {
     std::array<Player, 8> players {};
     
     Controller controller ( &players );
-    osc.init( &controller );
 
     bool showUi = false;
 
@@ -40,8 +39,8 @@ int main() {
 
 
     // Set up MIDI control
-    MidiHandler midi;
-    midi.setup( &controller );
+    //MidiHandler midi;
+    //midi.setup( &controller );
 
     // Initialize players
 //    players[0].load("https://www.youtube.com/watch?v=-ASxhgeVBpo"); // ECM trumpet
@@ -53,8 +52,11 @@ int main() {
 
     players[0].load("https://www.youtube.com/watch?v=oxQmec6gGV0");
     players[1].load("https://www.youtube.com/shorts/HzfMYiGj7M4");
-    players[2].load("https://www.youtube.com/watch?v=FY1CwzIjoJQ");
-    players[3].load("https://www.youtube.com/watch?v=ngfBSBoYzUY");
+    //players[2].load("https://www.youtube.com/watch?v=FY1CwzIjoJQ");
+//    players[3].load("https://www.youtube.com/watch?v=ngfBSBoYzUY");
+
+
+    osc.init( &controller );
 
     // Set up TUI
     TuiApp ui;
