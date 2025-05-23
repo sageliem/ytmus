@@ -8,7 +8,7 @@ SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = ytmus
 
-INCLUDE = -I/usr/local/include 
+INCLUDE = -I/usr/local/include -I/opt/homebrew/include
 CFLAGS += $(INCLUDE)
 
 # Target
