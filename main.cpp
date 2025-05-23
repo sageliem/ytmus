@@ -57,6 +57,7 @@ int main() {
 
 
     osc.init( &controller );
+    std::cout << "Initialized OSC listener\n";
 
     // Set up TUI
     TuiApp ui;
@@ -69,9 +70,14 @@ int main() {
         ui.load_buffer(2, &(players[2]));
         ui.load_buffer(3, &(players[3]));
     }
+    else {
+        std::cout << "UI Disabled\n";
+    }
 
     // Main loop
     while (1) {
+
+        controller.update();
         for (Player& p : players) {
             try 
             {
@@ -89,6 +95,9 @@ int main() {
                 return 1;
             }
         }
+
+        // Check schedule for events
+
 //        std::cout << "Current time: " << p.getCurrentPos() << " Loop: [" << p.getLoopStart() << ", " << p.getLoopEnd() << "]\n";
 
         if (showUi) ui.update();

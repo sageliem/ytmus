@@ -4,16 +4,35 @@
 
 #include "types.hpp"
 #include <array>
- 
+#include <chrono>
+#include <queue>
+
 class Player; // Forward declaration of player
+
+
+// Event class for schedule queue
+typedef struct Event 
+{
+    std::chrono::milliseconds when;
+    controlEvent eventType;
+    double controlValue;
+} Event;
+
+
 
 class Controller
 {
     std::array<Player, 8>* players;
     int active;
+    std::chrono::time_point< std::chrono::high_resolution_clock > start;
+    std::chrono::milliseconds time;
 
     double normalizeMidiValue( int value ); // Normalize MIDI event value 0.0-1.0
-                                            
+                                            //
+
+    std::priority_queue< Event, std::vector<Event>, std::greater<Event> > sched;
+
+
 public:
     void ctlSeek( double value );
     void ctlLoopStart( double value );
@@ -26,6 +45,11 @@ public:
 
 
     Controller(std::array<Player, 8>* players);
-    void handleControlEvent(controlEvent type, int value);
+
+    void handleControlEvent( controlEvent type, double value, int delayMillis );
+
+    void doControlEvent( controlEvent controlType, double controlValue);
+
+    void update();
 };
 

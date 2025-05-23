@@ -51,7 +51,7 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
 
     // Output values
     controlEvent controlType { SELECT_BUFFER };
-    int controlValue { 0 };
+    double controlValue { 0.0 };
 
     // TODO clean up types
     unsigned int status = static_cast<unsigned int>( (*message)[0] ); // Message type
@@ -65,14 +65,14 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
     case 0xB:
 //           std::cout << "CC Input\n";
         controlType = midiCCEventType( midiNumber );
-        controlValue = midiValue;
+        controlValue = midiValue / 127.0;
 
     // NOTE_ON
     case 0x9:
         if ( midiNumber>=48 && midiNumber<=56 )
         {
             controlType = SELECT_BUFFER;
-            controlValue = midiNumber;
+            controlValue = midiNumber - 48.0;
         }
 //            std::cout << "NoteOn number " << number << "\n";
         break;
@@ -84,7 +84,7 @@ void midiCallback(double deltatime, std::vector<unsigned char>* message, void* u
     }
 
 //    std::cout << "Sending data to Controller\n";
-    static_cast<Controller*>( userData ) -> handleControlEvent(controlType, controlValue);
+    static_cast<Controller*>( userData ) -> handleControlEvent(controlType, controlValue, 0);
 }
 
 
