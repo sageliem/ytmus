@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <jack/jack.h>
+//#include <jack/jack.h>
 
 extern "C" {
     #include <mpv/client.h>
