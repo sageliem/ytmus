@@ -1,3 +1,5 @@
+UNAME := $(shell uname)
+
 # Compiler
 CC = clang++
 CFLAGS = -Wall -Werror -g
@@ -8,7 +10,11 @@ SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = ytmus
 
-INCLUDE = -I/usr/local/include -I/opt/homebrew/include
+
+INCLUDE = -I/usr/local/include 
+ifeq ($(UNAME), Darwin)
+	INCLUDE += -I/opt/homebrew/include
+endif
 CFLAGS += $(INCLUDE)
 
 # Target
