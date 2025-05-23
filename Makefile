@@ -3,8 +3,11 @@ UNAME := $(shell uname)
 # Compiler
 CC = clang++
 CFLAGS = -Wall -Werror -g
-LDFLAGS = -L/usr/local/lib -lmpv -lrtmidi -lncurses -llo
-
+LDFLAGS = -L/usr/local/lib 
+ifeq ($(UNAME), Darwin)
+	LDFLAGS += -L/opt/homebrew/lib
+endif
+LDFLAGS += -lmpv -lrtmidi -lncurses -llo
 
 SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
