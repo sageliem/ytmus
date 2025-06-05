@@ -1,5 +1,5 @@
 #include <iostream>
-#include <jack/jack.h>
+//#include <jack/jack.h>
 
 #include "player.hpp"
 #include "controller.hpp"
