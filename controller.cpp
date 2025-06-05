@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <math.h>
+#include <mutex>
 
 bool operator>( const Event& ls, const Event& rs )
 {
@@ -22,6 +23,7 @@ Controller::Controller(std::array<Player, 8>* players)
 // Called by main()
 void Controller::update()
 {
+//    sched_mutex.lock();
     time = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::high_resolution_clock::now() - start );
 
     if (sched.empty()) return;
@@ -34,12 +36,24 @@ void Controller::update()
         doControlEvent( soonest.eventType, soonest.controlValue );
         sched.pop();
     }
+
+//    sched_mutex.unlock();
 }
 
+void Controller::lockQueue() 
+{
+    sched_mutex.lock();
+}
+
+void Controller::unlockQueue()
+{
+    sched_mutex.unlock();
+}
 
 // Handles a control event. Called by MidiController (rename to MidiHandler). TODO implement other Handler objects (OSC, keyboard control, etc)
 void Controller::handleControlEvent( controlEvent eventType, double controlValue, int delayMillis )
 {
+    time = std::chrono::duration_cast< std::chrono::milliseconds >( std::chrono::high_resolution_clock::now() - start );
     sched.push( Event{ time + std::chrono::milliseconds( delayMillis ), eventType, controlValue } );
 }
 

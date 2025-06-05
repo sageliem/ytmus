@@ -42,14 +42,29 @@ void OscHandler::init( Controller* controller )
             }
             );
 
+    // Handler for notes (buffer, seekpos, duration, pitch, speed)
+    // TODO add fine pitch
+    thread.add_method( "/note", "ifiif",
+            [this](lo_arg **argv, int)
+            {
+            this->controller->lockQueue();
+            this->controller->handleControlEvent( SELECT_BUFFER, argv[0] -> i, 0 );
+            this->controller->handleControlEvent( SEEK, argv[1] -> f, 1 );
+
+            this->controller->unlockQueue();
+            return 0;
+            });
+
     // Handler for seek messages
     thread.add_method( "/seek", "if",
             [this](lo_arg **argv, int)
             {
             // std::cout << "Received a seek message\n";
             // this->controller->ctlBufSelect( argv[0] -> i );
+            this->controller->lockQueue();
             this->controller->handleControlEvent( SELECT_BUFFER, argv[0] -> i, 0 );
             this->controller->handleControlEvent( SEEK, argv[1] -> f, 1 );
+            this->controller->unlockQueue();
             //
             // std::cout << "Argv[0] is " << argv[0] -> i32 << '\n';
             // std::cout << "Argv[1] is " << argv[1] -> f32 << '\n';

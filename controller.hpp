@@ -6,6 +6,7 @@
 #include <array>
 #include <chrono>
 #include <queue>
+#include <mutex>
 
 class Player; // Forward declaration of player
 
@@ -26,6 +27,8 @@ class Controller
     int active;
     std::chrono::time_point< std::chrono::high_resolution_clock > start;
     std::chrono::milliseconds time;
+    std::mutex sched_mutex;
+    std::unique_lock<std::mutex> sched_lock;
 
     double normalizeMidiValue( int value ); // Normalize MIDI event value 0.0-1.0
                                             //
@@ -49,6 +52,8 @@ public:
     void handleControlEvent( controlEvent type, double value, int delayMillis );
 
     void doControlEvent( controlEvent controlType, double controlValue);
+    void lockQueue();
+    void unlockQueue();
 
     void update();
 };
