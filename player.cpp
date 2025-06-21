@@ -170,6 +170,7 @@ double Player::getVolume()
     return volume;
 }
 
+
 // Title as std::string
 std::string Player::getTitle()
 {
