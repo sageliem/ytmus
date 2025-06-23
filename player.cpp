@@ -22,15 +22,15 @@ Player::Player()
   //    mpv_set_option_string(mpv, "vo", "null");
 
   // Video on? Doesn't work
-  mpv_set_option_string(mpv, "vo", "gpu-next");
-  mpv_set_option_string(mpv, "gpu-api", "vulkan");
-  mpv_set_option_string(mpv, "hwdec", "auto-safe");
+  mpv_set_option_string(mpv, "vo", "gpu");
+  // mpv_set_option_string(mpv, "gpu-api", "vulkan");
+  // mpv_set_option_string(mpv, "hwdec", "auto-safe");
 
   // Set my latest yt-dlp version (TODO)
   // mpv_set_option_string(mpv, "script-opts",
   // "ytdl_hook-ytdl_path=/Users/sageliem/.pyenv/shims/yt-dlp");
-  mpv_set_option_string(mpv, "script-opts",
-                        "ytdl_hook-ytdl_path=/usr/bin/yt-dlp");
+  // mpv_set_option_string(mpv, "script-opts",
+  //                     "ytdl_hook-ytdl_path=/opt/homebrew/bin/yt-dlp");
 
   // May have to replace with a command if using more filters
   // Needs to be named filter @rb to access later
