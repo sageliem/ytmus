@@ -5,6 +5,7 @@
 #include "types.hpp"
 #include <array>
 #include <chrono>
+#include <functional>
 #include <mutex>
 #include <queue>
 
