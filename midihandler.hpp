@@ -4,6 +4,9 @@
 
 enum midiEvent { NOTE_ON, NOTE_OFF, CC_EVENT };
 
+void midiCallback(double deltatime, std::vector<unsigned char> *message,
+                  void *userData);
+
 class Controller;
 
 class MidiHandler {

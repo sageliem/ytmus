@@ -50,6 +50,7 @@ void OscHandler::setHandlerMethods() {
     double speed = argv[4]->f;
 
     controller->ctlPitch(player, pitch);
+    controller->ctlSpeed(player, speed);
     controller->ctlSeek(player, seekPos);
     controller->ctlVolume(player, 1.0);
     controller->ctlVolume(player, 0.0, duration);

@@ -88,6 +88,10 @@ void MidiHandler::setup(Controller *controller) {
   midi.setCallback(&midiCallback, this);
 }
 
+void MidiHandler::setActivePlayer(int playerIndex) {
+  activePlayer = playerIndex;
+}
+
 // Placeholder, not needed currently
 void MidiHandler::update() { return; }
 
