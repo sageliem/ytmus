@@ -18,16 +18,17 @@ typedef struct Event {
 } Event;
 
 class Controller {
-  std::array<Player, 8> *players;
+  std::vector<std::unique_ptr<Player>> &players;
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   std::chrono::milliseconds time;
   std::mutex sched_mutex;
   std::unique_lock<std::mutex> sched_lock;
+  double scrubRate;
 
   std::priority_queue<Event, std::vector<Event>, std::greater<Event>> sched;
 
 public:
-  Controller(std::array<Player, 8> *players);
+  Controller(std::vector<std::unique_ptr<Player>> &players);
 
   void ctlSeek(int playerIndex, double value);
   void ctlLoopStart(int playerIndex, double value);
@@ -47,6 +48,15 @@ public:
   void ctlBufSelect(int playerIndex, int value, int delay);
   void ctlPitch(int playerIndex, double value, int delay);
   void ctlVolume(int playerIndex, double value, int delay);
+
+  void scrubSeek(int playerIndex, int value);
+  void scrubLoopStart(int playerIndex, int value);
+  void scrubLoopEnd(int playerIndex, int value);
+  void scrubLoopLength(int playerIndex, int value);
+  void scrubSpeed(int playerIndex, int value);
+  void scrubBufSelect(int playerIndex, int value);
+  void scrubPitch(int playerIndex, int value);
+  void scrubVolume(int playerIndex, int value);
 
   void pushEvent(std::function<void()> event, int delayMillis);
 

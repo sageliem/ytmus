@@ -10,8 +10,8 @@
 bool operator>(const Event &ls, const Event &rs) { return ls.when > rs.when; }
 
 // Create an instance of Controller holding pointer to array of Players
-Controller::Controller(std::array<Player, 8> *players)
-    : players{players}, sched{} {
+Controller::Controller(std::vector<std::unique_ptr<Player>> &players)
+    : players{players}, scrubRate{0.01}, sched{} {
   start = std::chrono::high_resolution_clock::now();
 }
 
@@ -98,31 +98,27 @@ void Controller::ctlSeek(int playerIndex, double controlValue) {
   std::cout << "ctlSeek: " << controlValue << '\n';
   //    players->at(playerIndex).seek( players->at(playerIndex).getDuration()
   //    * controlValue );
-  players->at(playerIndex)
-      .seek(players->at(playerIndex).getDuration() * controlValue);
+  players[playerIndex]->seek(players[playerIndex]->getDuration() *
+                             controlValue);
 }
 
 // Calls loop start on player
 void Controller::ctlLoopStart(int playerIndex, double controlValue) {
-  players->at(playerIndex)
-      .set_loop_start(players->at(playerIndex).getDuration() * controlValue);
-}
-
-void Controller::ctlLoopStart(int playerIndex, double controlValue, int delay) {
-  pushEvent([=]() { ctlLoopStart(playerIndex, controlValue); }, delay);
+  players[playerIndex]->set_loop_start(players[playerIndex]->getDuration() *
+                                       controlValue);
 }
 
 // Calls loop length on player
 void Controller::ctlLoopLength(int playerIndex, double controlValue) {
   double maxLength = 16; // Intervals of 0.063 seconds per MIDI CC
   // controlValue
-  players->at(playerIndex).set_loop_length(controlValue * maxLength);
+  players[playerIndex]->set_loop_length(controlValue * maxLength);
 }
 
 // Calls loop end
 void Controller::ctlLoopEnd(int playerIndex, double controlValue) {
-  players->at(playerIndex)
-      .set_loop_end(players->at(playerIndex).getDuration() * controlValue);
+  players[playerIndex]->set_loop_end(players[playerIndex]->getDuration() *
+                                     controlValue);
 }
 
 // Calls speed control
@@ -130,20 +126,20 @@ void Controller::ctlSpeed(int playerIndex, double controlValue) {
   double max_speed = 4.0;
   double speed =
       controlValue * (max_speed - 0.25) + 0.25; // Min speed is 0.25 with audio
-  players->at(playerIndex).set_rate(speed);
+  players[playerIndex]->set_rate(speed);
 }
 
 // Calls pitch control
 void Controller::ctlPitch(int playerIndex, double controlValue) {
   // Map to integer range -12 - 12
   int semitones = static_cast<int>(controlValue * 24) - 12;
-  players->at(playerIndex).setPitch(semitones);
+  players[playerIndex]->setPitch(semitones);
 }
 
 // Calls volume control
 void Controller::ctlVolume(int playerIndex, double controlValue) {
   double volume = controlValue * 100;
-  players->at(playerIndex).setVolume(volume);
+  players[playerIndex]->setVolume(volume);
 }
 
 // Overloads
@@ -154,6 +150,10 @@ void Controller::ctlSeek(int playerIndex, double controlValue, int delay) {
 void Controller::ctlLoopLength(int playerIndex, double controlValue,
                                int delay) {
   pushEvent([=]() { ctlLoopLength(playerIndex, controlValue); }, delay);
+}
+
+void Controller::ctlLoopStart(int playerIndex, double controlValue, int delay) {
+  pushEvent([=]() { ctlLoopStart(playerIndex, controlValue); }, delay);
 }
 
 void Controller::ctlLoopEnd(int playerIndex, double controlValue, int delay) {
@@ -172,11 +172,70 @@ void Controller::ctlVolume(int playerIndex, double controlValue, int delay) {
   pushEvent([=]() { ctlVolume(playerIndex, controlValue); }, delay);
 }
 
-// Changes currently selected buffer
-// void Controller::ctlBufSelect(int controlValue) {
-//   // Handle Arturia minilab presets (Placeholder)
-//   // TODO abstraction
-//   std::cout << "BufferSelect " << controlValue << '\n';
-//   active = static_cast<int>(std::floor(controlValue));
-//   //    std::cout << "Set active buffer to " << controlValue -48 << '\n';
-// }
+//
+// SCRUB methods for relative controls (send -2<value<2)
+//
+void Controller::scrubSeek(int playerIndex, int controlValue) {
+  std::unique_ptr<Player> &player = players[playerIndex];
+  std::cout << "scrubSeek: " << controlValue << '\n';
+  //    players->at(playerIndex).seek( players->at(playerIndex).getDuration()
+  //    * controlValue );
+  player->seek(player->getCurrentPos() +
+               static_cast<double>(controlValue) * scrubRate);
+}
+
+// Calls loop start on player
+void Controller::scrubLoopStart(int playerIndex, int controlValue) {
+  std::unique_ptr<Player> &player = players[playerIndex];
+  player->set_loop_start(player->getLoopStart() +
+                         static_cast<double>(controlValue) * scrubRate);
+}
+
+// Calls loop length on player
+void Controller::scrubLoopLength(int playerIndex, int controlValue) {
+  std::unique_ptr<Player> &player = players[playerIndex];
+  player->set_loop_length(player->getLoopLength() +
+                          static_cast<double>(controlValue) * scrubRate);
+}
+
+// Calls loop end
+void Controller::scrubLoopEnd(int playerIndex, int controlValue) {
+  std::unique_ptr<Player> &player = players[playerIndex];
+  player->set_loop_end(player->getLoopEnd() +
+                       static_cast<double>(controlValue) * scrubRate);
+}
+
+// Calls speed control
+void Controller::scrubSpeed(int playerIndex, int controlValue) {
+  double max_speed = 4.0;
+  double min_speed = 0.25;
+  double speed = players[playerIndex]->getSpeed();
+  speed += static_cast<double>(controlValue) * scrubRate;
+  if (speed > max_speed)
+    speed = max_speed;
+  else if (speed < min_speed)
+    speed = min_speed;
+  players[playerIndex]->set_rate(speed);
+}
+
+// Calls pitch control
+void Controller::scrubPitch(int playerIndex, int controlValue) {
+  std::unique_ptr<Player> &player = players[playerIndex];
+  if (controlValue > 0)
+    player->setPitch(player->getPitch() + 1);
+  else if (controlValue < 0)
+    player->setPitch(player->getPitch() - 1);
+}
+
+// Calls volume control
+void Controller::scrubVolume(int playerIndex, int controlValue) {
+  std::unique_ptr<Player> &player = players[playerIndex];
+  double volume = player->getVolume();
+  if (controlValue > 0)
+    volume++;
+  else if (controlValue < 0)
+    volume--;
+
+  if ((volume > 0) && (volume < 100))
+    player->setVolume(volume);
+}
