@@ -17,13 +17,16 @@ Controller::Controller(std::array<Player, 8> *players)
 
 // Called by main()
 void Controller::update() {
-  sched_mutex.lock();
 
   time = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::high_resolution_clock::now() - start);
 
-  if (sched.empty())
+  sched_mutex.lock();
+
+  if (sched.empty()) {
+    sched_mutex.unlock();
     return;
+  }
 
   Event soonest = sched.top();
   //    std::cout << "Time: " << time.count() << "  soonest event: " <<
@@ -39,26 +42,23 @@ void Controller::update() {
   sched_mutex.unlock();
 }
 
-void Controller::lockQueue() { sched_mutex.lock(); }
-
-void Controller::unlockQueue() { sched_mutex.unlock(); }
-
 // Handles a control event. Called by MidiController (rename to MidiHandler).
 // TODO implement other Handler objects (OSC, keyboard control, etc)
 void Controller::pushEvent(std::function<void()> event, int delayMillis) {
   time = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::high_resolution_clock::now() - start);
 
-  lockQueue();
+  sched_mutex.lock();
   sched.push(Event{
       .event = event,
       .when = time + std::chrono::milliseconds(delayMillis),
   });
-  unlockQueue();
+  sched_mutex.unlock();
 }
 
 // Perform event (called by update)
-// void Controller::doControlEvent(controlEvent eventType, double controlValue)
+// void Controller::doControlEvent(controlEvent eventType, double
+// controlValue)
 // {
 //   // Placeholder code to fix out of range issues TODO
 //   // if (eventType == SELECT_BUFFER && controlValue == 0) return;
@@ -92,13 +92,14 @@ void Controller::pushEvent(std::function<void()> event, int delayMillis) {
 // }
 
 // CONTROL METHODS
-// These can be overloaded to push themselves to the scheduler queue by adding a
-// millisecond delay Calls seek function on playerIndex player
+// These can be overloaded to push themselves to the scheduler queue by adding
+// a millisecond delay Calls seek function on playerIndex player
 void Controller::ctlSeek(int playerIndex, double controlValue) {
   std::cout << "ctlSeek: " << controlValue << '\n';
-  //    players->at(playerIndex).seek( players->at(playerIndex).getDuration() *
-  //    controlValue );
-  players->at(playerIndex).seek(controlValue);
+  //    players->at(playerIndex).seek( players->at(playerIndex).getDuration()
+  //    * controlValue );
+  players->at(playerIndex)
+      .seek(players->at(playerIndex).getDuration() * controlValue);
 }
 
 // Calls loop start on player
@@ -113,7 +114,8 @@ void Controller::ctlLoopStart(int playerIndex, double controlValue, int delay) {
 
 // Calls loop length on player
 void Controller::ctlLoopLength(int playerIndex, double controlValue) {
-  double maxLength = 16; // Intervals of 0.063 seconds per MIDI CC controlValue
+  double maxLength = 16; // Intervals of 0.063 seconds per MIDI CC
+  // controlValue
   players->at(playerIndex).set_loop_length(controlValue * maxLength);
 }
 

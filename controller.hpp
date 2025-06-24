@@ -26,9 +26,6 @@ class Controller {
 
   std::priority_queue<Event, std::vector<Event>, std::greater<Event>> sched;
 
-  void lockQueue();
-  void unlockQueue();
-
 public:
   Controller(std::array<Player, 8> *players);
 
