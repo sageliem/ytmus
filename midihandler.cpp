@@ -26,7 +26,6 @@ void midiCallback(double deltatime, std::vector<unsigned char> *message,
 
   // CC message
   case 0xB:
-    //           std::cout << "CC Input\n";
     parentHandler->midiCCEvent(midiNumber, midiValue);
     break;
 
@@ -88,6 +87,10 @@ void MidiHandler::setup(Controller *controller) {
   midi.setCallback(&midiCallback, this);
 }
 
+void MidiHandler::setRelativeKnobs(bool knobSetting) {
+  relativeKnobs = knobSetting;
+}
+
 void MidiHandler::setActivePlayer(int playerIndex) {
   activePlayer = playerIndex;
 }
@@ -98,6 +101,11 @@ void MidiHandler::update() { return; }
 // Helper for midiCallback
 // Hardcoded to Arturia Minilab Mkii
 void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
+
+  if (relativeKnobs) {
+    midiCCEventRelative(midiCCNumber, midiCCValue);
+  }
+
   double normCCValue = static_cast<double>(midiCCValue) / 127.0;
   switch (midiCCNumber) {
   // Knob 8 SEEK
@@ -123,6 +131,35 @@ void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
   // Knob 10 VOLUME
   case 18:
     controller->ctlVolume(activePlayer, normCCValue);
+    break;
+  }
+}
+
+void MidiHandler::midiCCEventRelative(int midiCCNumber, int midiCCValue) {
+  switch (midiCCNumber) {
+  // Knob 8 SEEK
+  case 75:
+    controller->scrubSeek(activePlayer, midiCCValue - 64);
+    break;
+  // Knob 7 SPEED
+  case 73:
+    controller->scrubSpeed(activePlayer, midiCCValue - 64);
+    break;
+  // Knob 2 LOOP_START
+  case 74:
+    controller->scrubLoopStart(activePlayer, midiCCValue - 64);
+    break;
+  // Knob 3 LOOP_LENGTH
+  case 71:
+    controller->scrubLoopLength(activePlayer, midiCCValue - 64);
+    break;
+  // Knob 6 PITCH
+  case 93:
+    controller->scrubPitch(activePlayer, midiCCValue - 64);
+    break;
+  // Knob 10 VOLUME
+  case 18:
+    controller->scrubVolume(activePlayer, midiCCValue - 64);
     break;
   }
 }
