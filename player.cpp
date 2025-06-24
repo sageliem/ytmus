@@ -206,6 +206,7 @@ void Player::set_loop_start(double start) {
     loop_start = loop_end - 0.01;
   }
   std::cout << "Set loop start to" << loop_start << '\n';
+  set_loop_length(loop_length);
 }
 
 // Set loop end
