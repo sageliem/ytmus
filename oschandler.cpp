@@ -78,8 +78,8 @@ void OscHandler::setHandlerMethods() {
     double loopStart = argv[1]->f;
     double loopLength = argv[2]->f;
     this->controller->ctlLoopStart(player, loopStart);
+    // this->controller->ctlLoopEnd(player, loopStart + loopLength);
     this->controller->ctlLoopLength(player, loopLength);
-    this->controller->ctlSeek(player, loopStart);
 
     // std::cout << "Argv[0] is " << argv[0] -> i32 << '\n';
     // std::cout << "Argv[1] is " << argv[1] -> f32 << '\n';
