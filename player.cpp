@@ -87,10 +87,12 @@ void Player::fill_audio(float *buffer, int n_frames) {
 void Player::update() {
   mpv_event *event = mpv_wait_event(mpv, 0.0); // non-blocking
   if (event->event_id == MPV_EVENT_END_FILE) {
+    std::cout << "Restarting video\n";
     restart();
   } else {
     double currentPos = getCurrentPos();
     if ((currentPos > loop_end) || (currentPos < loop_start - 0.1)) {
+      std::cout << "Looping\n";
       seek(loop_start);
     }
   }
@@ -177,11 +179,12 @@ void Player::set_loop_start(double start) {
   if (!isValidTimestamp(start))
     return;
 
-  if (start < loop_end - 0.1) {
+  if (start < loop_end - 0.01) {
     loop_start = start;
   } else {
-    loop_start = loop_end - 0.1;
+    loop_start = loop_end - 0.01;
   }
+  std::cout << "Set loop start to" << loop_start << '\n';
 }
 
 // Set loop end
@@ -189,19 +192,21 @@ void Player::set_loop_end(double end) {
   if (!isValidTimestamp(end))
     return;
 
-  if (end > loop_start + 0.1) {
+  if (end > loop_start + 0.01) {
     loop_end = end;
   } else {
-    loop_end = loop_start + 0.1;
+    loop_end = loop_start + 0.01;
   }
+
+  std::cout << "Set loop end to " << loop_end << '\n';
 }
 
 void Player::set_loop_length(double length) {
-  loop_end = loop_start + loop_length;
-  if (!isValidTimestamp(loop_end))
+  if (!isValidTimestamp(loop_start + length))
     return;
   loop_length = length;
   set_loop_end(loop_start + length);
+  std::cout << "Set loop length to " << loop_length << '\n';
 }
 
 void Player::set_rate(double new_rate) {
