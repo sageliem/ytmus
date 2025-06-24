@@ -1,40 +1,40 @@
 #pragma once
 
-#include <ncurses.h>
 #include "player.hpp"
-#include <memory>
-#include <string>
 #include <array>
+#include <memory>
+#include <ncurses.h>
+#include <string>
 
-class BufferWindow
-{
-    WINDOW *win;
-    Player *p; 
-    const char id;
-    std::string name;
-    int height;
-    int width;
-    int x;
-    int y;
+class BufferWindow {
+  WINDOW *win;
+  std::unique_ptr<Player> &p;
+  const char id;
+  std::string name;
+  int height;
+  int width;
+  int x;
+  int y;
+
 public:
-    BufferWindow(const char id);
-    void setup(Player *p_init, const int h_init, const int w_init, const int y_init, const int x_init);
-    void load_player(Player *p_new);
-    void update();
-    void close();
+  BufferWindow(const char id);
+  void setup(std::unique_ptr<Player> &p_init, const int h_init,
+             const int w_init, const int y_init, const int x_init);
+  void load_player(std::unique_ptr<Player> &p_new);
+  void update();
+  void close();
 };
 
-class TuiApp 
-{
-    int width;
-    int height;
-    std::array< std::unique_ptr<BufferWindow>, 8 > windows;
-public:
-    TuiApp();
-    void setup();
-    void update();
-    void close();
-    void load_buffer(const int id, Player *p);
-    void setActiveBuffer(const int id);
-};
+class TuiApp {
+  int width;
+  int height;
+  std::array<std::unique_ptr<BufferWindow>, 8> windows;
 
+public:
+  TuiApp();
+  void setup();
+  void update();
+  void close();
+  void load_buffer(const int id, std::unique_ptr<Player> &p);
+  void setActiveBuffer(const int id);
+};
