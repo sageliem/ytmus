@@ -6,12 +6,14 @@
 #include <cmath>
 #include <cstdio>
 #include <iostream>
+#include <mutex>
 
 // Constructor for Player object
 Player::Player()
     //  : port{},
     : path{}, title{}, loop_start{}, loop_end{}, loop_length{}, duration{},
-      rate{1.0}, pitch{0.0} {
+      rate{1.0}, pitch{0.0}, volume{50.0} {
+  player_mutex.lock();
   mpv = mpv_create();
   std::cout << "Created mpv instance\n";
 
@@ -35,11 +37,14 @@ Player::Player()
   // May have to replace with a command if using more filters
   // Needs to be named filter @rb to access later
   mpv_set_option_string(mpv, "af", "@rb:rubberband=pitch-scale=1.0");
+  player_mutex.unlock();
 }
 
 // Destructor terminates mpv and destroys mpv client object
 Player::~Player() {
+  player_mutex.lock();
   mpv_terminate_destroy(mpv);
+  player_mutex.unlock();
   std::cout << "Destroyed mpv instance\n";
 }
 
@@ -48,23 +53,31 @@ void Player::load(const std::string &url) {
   path = url;
   const char *load_cmd[] = {"loadfile", url.c_str(), "replace", NULL};
   std::cout << "Attempting to load file at " << url << '\n';
+
+  player_mutex.lock();
   mpv_command(mpv, load_cmd);
+  player_mutex.unlock();
 
   // Wait for load successful
   bool loaded = false;
   while (!loaded) {
+    player_mutex.lock();
     mpv_event *event =
         mpv_wait_event(mpv, 0); // wait for an event (non-blocking)
+    player_mutex.unlock();
     if (event->event_id == MPV_EVENT_FILE_LOADED)
       loaded = true;
   }
   std::cout << "File loaded: " << path << std::endl;
 
+  player_mutex.lock();
   // Get video title
   mpv_get_property(mpv, "media-title", MPV_FORMAT_STRING, &title);
 
   // Set duration
   mpv_get_property(mpv, "duration", MPV_FORMAT_DOUBLE, &duration);
+  player_mutex.unlock();
+
   loop_end = duration;
 
   // Could add functionality to hide or show video
@@ -118,7 +131,9 @@ std::string Player::getPath() { return path; }
 // Current time-pos
 double Player::getCurrentPos() {
   double currentPos{};
+  player_mutex.lock();
   mpv_get_property(mpv, "time-pos", MPV_FORMAT_DOUBLE, &currentPos);
+  player_mutex.unlock();
   return currentPos;
 }
 
@@ -130,6 +145,8 @@ double Player::getLoopStart() { return loop_start; }
 
 // Loop end
 double Player::getLoopEnd() { return loop_end; }
+
+double Player::getLoopLength() { return loop_length; }
 
 // Playback speed
 double Player::getSpeed() { return rate; }
@@ -152,13 +169,17 @@ double Player::getProgress() { return getCurrentPos() / getDuration(); }
 // Play
 void Player::play() {
   int paused = 0; // TODO check if this is necessary, could be null if not
+  player_mutex.lock();
   mpv_set_property(mpv, "pause", MPV_FORMAT_FLAG, &paused);
+  player_mutex.unlock();
 }
 
 // Pause
 void Player::pause() {
   int paused = 1;
+  player_mutex.lock();
   mpv_set_property(mpv, "play", MPV_FORMAT_FLAG, &paused);
+  player_mutex.unlock();
 }
 
 // Set loop start and end
@@ -225,7 +246,9 @@ void Player::setPitch(int semitones) {
   const char *pitch_cmd[] = {"af-command", "rb", "set-pitch", pitch_ratio_str,
                              NULL};
 
+  player_mutex.lock();
   mpv_command(mpv, pitch_cmd);
+  player_mutex.unlock();
 
   //    std::cout << "Set Pitch to " << semitones << " Ratio: " <<
   //    pitch_ratio_str << '\n';
@@ -239,7 +262,11 @@ void Player::setVolume(double vol) {
   if (vol <= 0.0 || vol >= 100.0)
     return;
   volume = vol;
+
+  player_mutex.lock();
   mpv_set_property(mpv, "volume", MPV_FORMAT_DOUBLE, &volume);
+
+  player_mutex.unlock();
   //    std::cout << "Mpv set property succeeded\n";
 }
 
@@ -250,11 +277,18 @@ void Player::seek(double seek_pos) {
 
   std::string seek_pos_str{std::to_string(seek_pos)};
   const char *seek_cmd[] = {"seek", seek_pos_str.c_str(), "absolute", NULL};
+
+  player_mutex.lock();
   mpv_command(mpv, seek_cmd);
+  player_mutex.unlock();
 }
 
 // Restart video
 void Player::restart() {
   seek(0.0);
   play();
+}
+
+double Player::normalizeTimestamp(double timestamp) {
+  return timestamp / duration;
 }
