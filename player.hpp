@@ -2,7 +2,7 @@
 
 #include <mutex>
 #include <string>
-// #include <jack/jack.h>
+#include <string_view>
 
 extern "C" {
 #include <mpv/client.h>
@@ -57,8 +57,8 @@ public:
   double getPitch();
   double getVolume();
   double getProgress();
-  std::string getPath();
-  std::string getTitle();
+  std::string_view getPath();
+  std::string_view getTitle();
   double normalizeTimestamp(double timestamp);
 
   // Maybe make private

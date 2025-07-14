@@ -23,16 +23,11 @@ Player::Player()
   // Defaults (no video)
   //    mpv_set_option_string(mpv, "vo", "null");
 
-  // Video on? Doesn't work
+  // Video on
   mpv_set_option_string(mpv, "vo", "gpu");
+
   // mpv_set_option_string(mpv, "gpu-api", "vulkan");
   // mpv_set_option_string(mpv, "hwdec", "auto-safe");
-
-  // Set my latest yt-dlp version (TODO)
-  // mpv_set_option_string(mpv, "script-opts",
-  // "ytdl_hook-ytdl_path=/Users/sageliem/.pyenv/shims/yt-dlp");
-  // mpv_set_option_string(mpv, "script-opts",
-  //                     "ytdl_hook-ytdl_path=/opt/homebrew/bin/yt-dlp");
 
   // May have to replace with a command if using more filters
   // Needs to be named filter @rb to access later
@@ -79,33 +74,15 @@ void Player::load(const std::string &url) {
   player_mutex.unlock();
 
   loop_end = duration;
-
-  // Could add functionality to hide or show video
-}
-
-/* TODO
-// Initialize JACK port
-void Player::init_audio(const std::string &port_name, jack_client_t* client)
-{
-    port = jack_port_register(client, port_name.c_str(),
-JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-}
-*/
-
-// TODO Fill audio buffers
-void Player::fill_audio(float *buffer, int n_frames) {
-  // TODO
 }
 
 void Player::update() {
   mpv_event *event = mpv_wait_event(mpv, 0.0); // non-blocking
   if (event->event_id == MPV_EVENT_END_FILE) {
-    std::cout << "Restarting video\n";
     restart();
   } else {
     double currentPos = getCurrentPos();
     if ((currentPos > loop_end) || (currentPos < loop_start - 0.1)) {
-      std::cout << "Looping\n";
       seek(loop_start);
     }
   }
@@ -118,17 +95,12 @@ bool Player::isValidTimestamp(double timestamp) {
 }
 
 // Getters
-// Playing or paused
 bool Player::isPlaying() {
   int paused{0};
   mpv_get_property(mpv, "paused", MPV_FORMAT_FLAG, &paused);
   return !paused;
 }
 
-// URL or file path
-std::string Player::getPath() { return path; }
-
-// Current time-pos
 double Player::getCurrentPos() {
   double currentPos{};
   player_mutex.lock();
@@ -137,31 +109,26 @@ double Player::getCurrentPos() {
   return currentPos;
 }
 
-// File duration
 double Player::getDuration() { return duration; }
 
-// Loop start
 double Player::getLoopStart() { return loop_start; }
 
-// Loop end
 double Player::getLoopEnd() { return loop_end; }
 
 double Player::getLoopLength() { return loop_length; }
 
-// Playback speed
 double Player::getSpeed() { return rate; }
 
-// Pitch shift (in semitones)
 double Player::getPitch() { return pitch; }
 
-// Volume (double in range 0.0-100.0)
 double Player::getVolume() { return volume; }
 
-// Title as std::string
-std::string Player::getTitle() {
-  std::string title_str(title);
+std::string_view Player::getTitle() {
+  std::string_view title_str(title);
   return title_str;
 }
+
+std::string_view Player::getPath() { return path; }
 
 double Player::getProgress() { return getCurrentPos() / getDuration(); }
 
@@ -205,7 +172,6 @@ void Player::set_loop_start(double start) {
   } else {
     loop_start = loop_end - 0.01;
   }
-  std::cout << "Set loop start to" << loop_start << '\n';
   set_loop_length(loop_length);
 }
 
@@ -219,8 +185,6 @@ void Player::set_loop_end(double end) {
   } else {
     loop_end = loop_start + 0.01;
   }
-
-  std::cout << "Set loop end to " << loop_end << '\n';
 }
 
 void Player::set_loop_length(double length) {
@@ -228,7 +192,6 @@ void Player::set_loop_length(double length) {
     return;
   loop_length = length;
   set_loop_end(loop_start + length);
-  std::cout << "Set loop length to " << loop_length << '\n';
 }
 
 void Player::set_rate(double new_rate) {
@@ -250,9 +213,6 @@ void Player::setPitch(int semitones) {
   player_mutex.lock();
   mpv_command(mpv, pitch_cmd);
   player_mutex.unlock();
-
-  //    std::cout << "Set Pitch to " << semitones << " Ratio: " <<
-  //    pitch_ratio_str << '\n';
 }
 
 void Player::setFinePitch(double newFinePitch) {
@@ -268,7 +228,6 @@ void Player::setVolume(double vol) {
   mpv_set_property(mpv, "volume", MPV_FORMAT_DOUBLE, &volume);
 
   player_mutex.unlock();
-  //    std::cout << "Mpv set property succeeded\n";
 }
 
 // Jump to timestamp
