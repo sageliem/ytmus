@@ -8,50 +8,39 @@
 // TODO refactor into MidiHandler class
 void midiCallback(double deltatime, std::vector<unsigned char> *message,
                   void *userData) {
-  // userData is a reference to the handler that calls this
   MidiHandler *parentHandler = static_cast<MidiHandler *>(userData);
 
-  // Filter out nonstandard message types
   if (message->size() != 3)
     return;
 
-  // TODO clean up types
-  unsigned int status =
-      static_cast<unsigned int>((*message)[0]); // Message type
-  unsigned int status_shift = status >> 4;
-  int midiNumber = (*message)[1]; // Note/CC number
-  int midiValue = (*message)[2];  // Note/CC value
+  unsigned int status = static_cast<unsigned int>((*message)[0]);
+  unsigned int status_upper = status >> 4; // Upper 4 digits of status byte
+  unsigned int midiNumber = (*message)[1]; // Note/CC number
+  unsigned int midiValue = (*message)[2];  // Note/CC value
 
-  switch (status_shift) {
-
-  // CC message
-  case 0xB:
+  switch (status_upper) {
+  case 0xB: // CC message
     parentHandler->midiCCEvent(midiNumber, midiValue);
     break;
-
-  // NOTE_ON
-  case 0x9:
+  case 0x9: // NOTE_ON
     if (midiNumber >= 48 && midiNumber <= 56)
       parentHandler->setActivePlayer(static_cast<int>(midiNumber) - 48);
-    //            std::cout << "NoteOn number " << number << "\n";
     break;
-
-  // NOTE_OFF
-  case 0x8:
-    //      std::cout << "Note Off\n";
+  case 0x8: // NOTE_OFF
     break;
   }
 }
 
+MidiHandler::MidiHandler(Controller *controller)
+    : midi{}, controller{controller}, activePlayer{0} {}
+
 // Initialize midi controller, select port
-void MidiHandler::setup(Controller *controller) {
+void MidiHandler::setup() {
   // Get port count
   unsigned int nPorts{midi.getPortCount()};
   std::cout << "There are " << nPorts << " MIDI input sources available.\n";
 
   std::string portName; // Stores current port name
-
-  this->controller = controller;
 
   // List available ports
   for (unsigned int i = 0; i < nPorts; i++) {
@@ -65,12 +54,11 @@ void MidiHandler::setup(Controller *controller) {
     std::cout << "  Input Port #" << i << ": " << portName << '\n';
   }
 
-  // Get port selection from user
+  // Open a port
   unsigned int portNum;
   std::cout << "Select a port: ";
   std::cin >> portNum;
 
-  // Attempt to open selected port
   try {
     midi.openPort(portNum);
   } catch (RtMidiError &err) {
@@ -80,10 +68,8 @@ void MidiHandler::setup(Controller *controller) {
 
   std::cout << "Listening on port " << midi.getPortName() << '\n';
 
-  // Ignore special messages (reduces number of callbacks)
-  midi.ignoreTypes(true, true, true);
-
-  // Set callback function, pass pointer to self
+  // set up RtMidi callback
+  midi.ignoreTypes(true, true, true); // Ignore special messages
   midi.setCallback(&midiCallback, this);
 }
 
@@ -95,11 +81,7 @@ void MidiHandler::setActivePlayer(int playerIndex) {
   activePlayer = playerIndex;
 }
 
-// Placeholder, not needed currently
-void MidiHandler::update() { return; }
-
-// Helper for midiCallback
-// Hardcoded to Arturia Minilab Mkii
+// called by midiCallback
 void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
 
   if (relativeKnobs) {
@@ -108,28 +90,22 @@ void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
 
   double normCCValue = static_cast<double>(midiCCValue) / 127.0;
   switch (midiCCNumber) {
-  // Knob 8 SEEK
-  case 75:
+  case SEEK_MAP:
     controller->ctlSeek(activePlayer, normCCValue);
     break;
-  // Knob 7 SPEED
-  case 73:
+  case SPEED_MAP:
     controller->ctlSpeed(activePlayer, normCCValue);
     break;
-  // Knob 2 LOOP_START
-  case 74:
+  case LOOPSTART_MAP:
     controller->ctlLoopStart(activePlayer, normCCValue);
     break;
-  // Knob 3 LOOP_LENGTH
-  case 71:
+  case LOOPLENGTH_MAP:
     controller->ctlLoopLength(activePlayer, normCCValue);
     break;
-  // Knob 6 PITCH
-  case 93:
+  case PITCH_MAP:
     controller->ctlPitch(activePlayer, normCCValue);
     break;
-  // Knob 10 VOLUME
-  case 18:
+  case VOLUME_MAP:
     controller->ctlVolume(activePlayer, normCCValue);
     break;
   }
@@ -137,28 +113,22 @@ void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
 
 void MidiHandler::midiCCEventRelative(int midiCCNumber, int midiCCValue) {
   switch (midiCCNumber) {
-  // Knob 8 SEEK
-  case 75:
+  case SEEK_MAP:
     controller->scrubSeek(activePlayer, midiCCValue - 64);
     break;
-  // Knob 7 SPEED
-  case 73:
+  case SPEED_MAP:
     controller->scrubSpeed(activePlayer, midiCCValue - 64);
     break;
-  // Knob 2 LOOP_START
-  case 74:
+  case LOOPSTART_MAP:
     controller->scrubLoopStart(activePlayer, midiCCValue - 64);
     break;
-  // Knob 3 LOOP_LENGTH
-  case 71:
+  case LOOPLENGTH_MAP:
     controller->scrubLoopLength(activePlayer, midiCCValue - 64);
     break;
-  // Knob 6 PITCH
-  case 93:
+  case PITCH_MAP:
     controller->scrubPitch(activePlayer, midiCCValue - 64);
     break;
-  // Knob 10 VOLUME
-  case 18:
+  case VOLUME_MAP:
     controller->scrubVolume(activePlayer, midiCCValue - 64);
     break;
   }

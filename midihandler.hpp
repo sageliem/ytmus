@@ -14,13 +14,25 @@ class MidiHandler {
   Controller *controller;
   bool relativeKnobs;
   int activePlayer;
+
+  // MIDI Mapping Configuration (TODO: read these values from config at runtime)
+  enum Mapping {
+    SEEK_MAP = 75,
+    SPEED_MAP = 73,
+    LOOPSTART_MAP = 74,
+    LOOPLENGTH_MAP = 71,
+    PITCH_MAP = 93,
+    VOLUME_MAP = 18,
+    PITCH0_MAP = 60,
+    BUFFER0_MAP = 0
+  };
+
   void midiCCEventRelative(int midiCCNumber, int midiCCValue);
   //    void midiCallback(double deltatime, std::vector<unsigned char>* message,
   //    void* userData);
 public:
-  void setup(Controller *controller);
-  void update();
-
+  MidiHandler(Controller *controller);
+  void setup();
   void setRelativeKnobs(bool knobSetting);
   void setActivePlayer(int playerIndex);
   void midiCCEvent(int midiCCNumber, int midiCCValue);
