@@ -9,8 +9,7 @@ ifeq ($(UNAME), Darwin)
 endif
 LDFLAGS += -lmpv -lrtmidi -lncurses -llo
 
-#SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
-SRC = main.cpp player.cpp midihandler.cpp oschandler.cpp controller.cpp
+SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = ytmus
 
