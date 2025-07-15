@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rtmidi/RtMidi.h>
+#include <unordered_map>
 
 enum midiEvent { NOTE_ON, NOTE_OFF, CC_EVENT };
 
@@ -26,6 +27,7 @@ class MidiHandler {
     PITCH0_MAP = 60,
     BUFFER0_MAP = 0
   };
+  std::unordered_map<Mapping, int> mapping;
 
   void midiCCEventRelative(int midiCCNumber, int midiCCValue);
   //    void midiCallback(double deltatime, std::vector<unsigned char>* message,

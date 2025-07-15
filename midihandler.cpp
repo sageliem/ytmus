@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include "include/inih/cpp/IniReader.h"
+
 #include "midihandler.hpp"
 
 #include "controller.hpp"
@@ -36,6 +38,17 @@ MidiHandler::MidiHandler(Controller *controller)
 
 // Initialize midi controller, select port
 void MidiHandler::setup() {
+  // Read configuration
+  INIReader ini("config.ini");
+
+  if (ini.ParseError() < 0) {
+    std::cout << "Could not read configuration config.ini\n";
+    return;
+  }
+  setRelativeKnobs(ini.GetBoolean("midi", "relative", false));
+
+  std::cout << "Config loaded from config.ini\n";
+
   // Get port count
   unsigned int nPorts{midi.getPortCount()};
   std::cout << "There are " << nPorts << " MIDI input sources available.\n";
