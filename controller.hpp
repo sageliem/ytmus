@@ -2,14 +2,17 @@
 //
 #pragma once
 
-#include "types.hpp"
 #include <array>
 #include <chrono>
 #include <functional>
 #include <mutex>
 #include <queue>
 
+#include "tui.hpp"
+#include "types.hpp"
+
 class Player; // Forward declaration of player
+class TuiApp;
 
 // Event class for schedule queue
 typedef struct Event {
@@ -25,10 +28,13 @@ class Controller {
   std::unique_lock<std::mutex> sched_lock;
   double scrubRate;
 
+  std::unique_ptr<TuiApp> &ui;
+
   std::priority_queue<Event, std::vector<Event>, std::greater<Event>> sched;
 
 public:
-  Controller(std::vector<std::unique_ptr<Player>> &players);
+  Controller(std::vector<std::unique_ptr<Player>> &players,
+             std::unique_ptr<TuiApp> &ui);
 
   void ctlSeek(int playerIndex, double value);
   void ctlLoopStart(int playerIndex, double value);

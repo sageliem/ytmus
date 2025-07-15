@@ -1,27 +1,35 @@
 // ncurses TUI for ytcc2
-
 #include "tui.hpp"
+#include <iostream>
 
 // Create TUI app class
-TuiApp::TuiApp() : width{}, height{} {
-  for (int i = 0; i < 8; ++i) {
-    windows[i] = std::make_unique<PlayerWindow>(i);
+TuiApp::TuiApp() {
+  for (int i = 0; i < 8; i++) {
+    windows.push_back(std::make_unique<PlayerWindow>(i));
   }
 }
 
 // setup(): enter ncurses mode and create windows
 void TuiApp::setup() {
   initscr();
+  if (stdscr == NULL) {
+    std::cout << "Failed to initialize ncurses";
+    return;
+  }
   getmaxyx(stdscr, height, width);
-  for (int i = 0; i < 8; ++i) {
-    windows[i]->setPos(height / 8, width, height / 8 * i, 0);
+  for (int i = 0; i < 8; i++) {
+    windows[i]->setPos(0, (height / 8) * i, width, height / 8);
   }
 }
 
 // TODO
-void TuiApp::setActiveWindow(const int &id) {}
+void TuiApp::setActiveWindow(const int &id) {
+  for (const auto &window : windows)
+    window->setActive(false);
+  windows[id]->setActive(true);
+}
 
-const std::unique_ptr<PlayerWindow> &TuiApp::getWindow(const int &id) {
+std::unique_ptr<PlayerWindow> &TuiApp::getWindow(const int &id) {
   return windows[id];
 }
 
@@ -31,7 +39,7 @@ void TuiApp::update() {
     window->update();
   }
 
-  doupdate();
+  doupdate(); // Display to screen
 }
 
 // Closes windows, main screen, and exits ncurses mode
@@ -43,36 +51,30 @@ void TuiApp::close() {
   endwin();
 }
 
-// Window class created for each buffer
-// BufferWindow::BufferWindow(const char id_init)
-//     : win{nullptr}, p{nullptr}, id{id_init}, name{""} {}
 //
-// Create window displaying player info
-void PlayerWindow::setPos(const int h_init, const int w_init, const int y_init,
-                          const int x_init) {
-  height = h_init;
-  width = w_init;
+// PlayerWindow class
+//
+PlayerWindow::PlayerWindow(const int id) : id{id} {}
 
-  y = y_init;
-  x = x_init;
+void PlayerWindow::setPos(const int x, const int y, const int w, const int h) {
+  height = h;
+  width = w;
+
+  this->y = y;
+  this->x = x;
 
   // Initialize window element
   win = newwin(height, width, y, x);
 }
 
-// Redirect buffer window to a different player
-// void BufferWindow::load_player(std::unique_ptr<Player> &p_new) {
-//   p = p_new;
-//   if (p) {
-//     name = p->getTitle();
-//   }
-// }
-
 // Update window each frame, displaying player info if available
 void PlayerWindow::update() {
   werase(win);
 
-  box(win, 0, 0);
+  if (active)
+    box(win, '0', '0');
+  else
+    box(win, 0, 0);
 
   mvwprintw(win, 0, 2, "| %d | ", id);
 
@@ -90,5 +92,17 @@ void PlayerWindow::update() {
   wnoutrefresh(win);
 }
 
-// Close buffer window element
 void PlayerWindow::close() { delwin(win); }
+
+void PlayerWindow::setName(const std::string &name) { this->name = name; }
+void PlayerWindow::setTimePos(const double &pos) { this->timePos = pos; }
+void PlayerWindow::setLoopStart(const double &start) {
+  this->loopStart = start;
+}
+void PlayerWindow::setLoopLength(const double &loopLength) {
+  loopEnd = loopEnd + loopLength;
+}
+void PlayerWindow::setSpeed(const double &speed) { this->speed = speed; }
+void PlayerWindow::setPitch(const double &pitch) { this->pitch = pitch; }
+void PlayerWindow::setVolume(const double &volume) { this->volume = volume; }
+void PlayerWindow::setActive(bool opt) { this->active = opt; }

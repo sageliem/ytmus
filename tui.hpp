@@ -5,52 +5,36 @@
 #include <string>
 #include <vector>
 
-// class BufferWindow {
-//   WINDOW *win;
-//   std::unique_ptr<Player> &p;
-//   const char id;
-//   std::string name;
-//   int height;
-//   int width;
-//   int x;
-//   int y;
-//
-// public:
-//   BufferWindow(const char id);
-//   void setup(std::unique_ptr<Player> &p_init, const int h_init,
-//              const int w_init, const int y_init, const int x_init);
-//   void load_player(std::unique_ptr<Player> &p_new);
-//   void update();
-//   void close();
-// };
-//
-
 class PlayerWindow {
   WINDOW *win;
   const int id;
   std::string name;
+  bool active;
   int height;
   int width;
   int x;
   int y;
   double timePos;
   double loopStart;
+  // double loopLength;
   double loopEnd;
   double speed;
   double pitch;
   double volume;
 
 public:
-  PlayerWindow(const char id);
+  PlayerWindow(const int id);
   void setPos(const int h_init, const int w_init, const int y_init,
               const int x_init);
 
-  void setName(std::string name);
-  void setTimePos(double pos);
-  void setLoop(double start, double end);
-  void setSpeed(double pos);
-  void setPitch(double pitch);
-  void setVolume(float pos);
+  void setName(const std::string &name);
+  void setTimePos(const double &pos);
+  void setLoopStart(const double &start);
+  void setLoopLength(const double &loopLength);
+  void setSpeed(const double &pos);
+  void setPitch(const double &pitch);
+  void setVolume(const double &volume);
+  void setActive(bool opt);
 
   void update();
   void close();
@@ -67,5 +51,5 @@ public:
   void update();
   void close();
   void setActiveWindow(const int &id);
-  const std::unique_ptr<PlayerWindow> &getWindow(const int &id);
+  std::unique_ptr<PlayerWindow> &getWindow(const int &id);
 };
