@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "include/inih/cpp/IniReader.h"
+#include "include/inih/cpp/INIReader.h"
 
 #include "midihandler.hpp"
 
@@ -45,9 +45,11 @@ void MidiHandler::setup() {
     std::cout << "Could not read configuration config.ini\n";
     return;
   }
+
   setRelativeKnobs(ini.GetBoolean("midi", "relative", false));
 
   std::cout << "Config loaded from config.ini\n";
+  std::cout << "Seek Knob: " << ini.GetInteger("midi", "seek", 0) << '\n';
 
   // Get port count
   unsigned int nPorts{midi.getPortCount()};
