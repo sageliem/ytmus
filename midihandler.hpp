@@ -16,7 +16,6 @@ class MidiHandler {
   bool relativeKnobs;
   int activePlayer;
 
-  // MIDI Mapping Configuration (TODO: read these values from config at runtime)
   enum Mapping {
     SEEK_MAP = 75,
     SPEED_MAP = 73,

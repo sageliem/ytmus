@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "include/inih/cpp/INIReader.h"
+#include "include/inicpp/inicpp.h"
 
 #include "midihandler.hpp"
 
@@ -39,17 +39,22 @@ MidiHandler::MidiHandler(Controller *controller)
 // Initialize midi controller, select port
 void MidiHandler::setup() {
   // Read configuration
-  INIReader ini("config.ini");
+  ini::IniFile cfg;
+  cfg.load("config.ini");
 
-  if (ini.ParseError() < 0) {
-    std::cout << "Could not read configuration config.ini\n";
-    return;
-  }
+  setRelativeKnobs(cfg["midi"]["relative"].as<bool>());
 
-  setRelativeKnobs(ini.GetBoolean("midi", "relative", false));
+  mapping[SEEK_MAP] = cfg["midi"]["seek"].as<int>();
+  mapping[SPEED_MAP] = cfg["midi"]["speed"].as<int>();
+  mapping[LOOPSTART_MAP] = cfg["midi"]["loopstart"].as<int>();
+  mapping[LOOPLENGTH_MAP] = cfg["midi"]["looplength"].as<int>();
+  mapping[PITCH_MAP] = cfg["midi"]["pitch"].as<int>();
+  mapping[VOLUME_MAP] = cfg["midi"]["volume"].as<int>();
+  mapping[PITCH0_MAP] = cfg["midi"]["pitch0"].as<int>();
+  mapping[BUFFER0_MAP] = cfg["midi"]["buffer0"].as<int>();
 
   std::cout << "Config loaded from config.ini\n";
-  std::cout << "Seek Knob: " << ini.GetInteger("midi", "seek", 0) << '\n';
+  std::cout << "Seek Knob: " << cfg["midi"]["seek"].as<int>() << '\n';
 
   // Get port count
   unsigned int nPorts{midi.getPortCount()};
@@ -104,26 +109,18 @@ void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
   }
 
   double normCCValue = static_cast<double>(midiCCValue) / 127.0;
-  switch (midiCCNumber) {
-  case SEEK_MAP:
+  if (midiCCNumber == mapping[SEEK_MAP])
     controller->ctlSeek(activePlayer, normCCValue);
-    break;
-  case SPEED_MAP:
+  else if (midiCCNumber == mapping[SPEED_MAP])
     controller->ctlSpeed(activePlayer, normCCValue);
-    break;
-  case LOOPSTART_MAP:
+  else if (midiCCNumber == mapping[LOOPSTART_MAP])
     controller->ctlLoopStart(activePlayer, normCCValue);
-    break;
-  case LOOPLENGTH_MAP:
+  else if (midiCCNumber == mapping[LOOPLENGTH_MAP])
     controller->ctlLoopLength(activePlayer, normCCValue);
-    break;
-  case PITCH_MAP:
+  else if (midiCCNumber == mapping[PITCH_MAP])
     controller->ctlPitch(activePlayer, normCCValue);
-    break;
-  case VOLUME_MAP:
+  else if (midiCCNumber == mapping[VOLUME_MAP])
     controller->ctlVolume(activePlayer, normCCValue);
-    break;
-  }
 }
 
 void MidiHandler::midiCCEventRelative(int midiCCNumber, int midiCCValue) {
