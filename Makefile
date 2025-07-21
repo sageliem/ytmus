@@ -10,13 +10,13 @@ endif
 LDFLAGS += -lmpv -lrtmidi -lncurses -llo 
 
 SRC = main.cpp player.cpp tui.cpp midihandler.cpp oschandler.cpp controller.cpp
-SRC += include/inih/ini.h include/inih/cpp/INIReader.h
+# SRC += include/inih/cpp/INIReader.cpp
 OBJ = $(SRC:.cpp=.o)
-OBJ := $(OBJS:.c=.o)
+# OBJ := $(OBJS:.c=.o)
 TARGET = ytmus
 
 
-INCLUDE = -I/usr/local/include -I./include
+INCLUDE = -I/usr/local/include -I./include 
 ifeq ($(UNAME), Darwin)
 	INCLUDE += -I/opt/homebrew/include
 endif
