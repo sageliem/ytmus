@@ -13,19 +13,11 @@ int main() {
   OscHandler osc(5050);
 
   std::vector<std::unique_ptr<Player>> players{};
-  auto ui = std::make_unique<TuiApp>();
+  auto ui = std::make_unique<TuiApp>(players);
 
   bool showUi = true;
 
-  // Set up TUI
-  if (showUi) {
-    ui->setup();
-  } else {
-    ui = nullptr;
-    std::cout << "UI Disabled\n";
-  }
-
-  Controller controller(players, ui);
+  Controller controller(players);
 
   // Set up MIDI control
   MidiHandler midi(&controller);
@@ -50,6 +42,14 @@ int main() {
   osc.init(&controller);
   std::cout << "Initialized OSC listener\n";
 
+  // Set up TUI
+  if (showUi) {
+    ui->setup();
+  } else {
+    ui = nullptr;
+    std::cout << "UI Disabled\n";
+  }
+
   // Main loop
   while (1) {
 
@@ -57,6 +57,8 @@ int main() {
     for (std::unique_ptr<Player> &p : players) {
       try {
         p->update();
+        if (showUi)
+          ui->update();
       } catch (std::exception &err) {
         std::cerr << "Exception while updating players: " << err.what() << '\n';
         if (showUi)
