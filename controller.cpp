@@ -1,6 +1,5 @@
 #include "controller.hpp"
 #include "player.hpp"
-#include "tui.hpp"
 
 #include <chrono>
 #include <functional>
@@ -12,9 +11,8 @@
 bool operator>(const Event &ls, const Event &rs) { return ls.when > rs.when; }
 
 // Create an instance of Controller holding pointer to array of Players
-Controller::Controller(std::vector<std::unique_ptr<Player>> &players,
-                       std::unique_ptr<TuiApp> &ui)
-    : players{players}, scrubRate{0.01}, ui{ui}, sched{} {
+Controller::Controller(std::vector<std::unique_ptr<Player>> &players)
+    : players{players}, scrubRate{0.01}, sched{} {
   start = std::chrono::high_resolution_clock::now();
 }
 
@@ -25,17 +23,6 @@ void Controller::update() {
       std::chrono::high_resolution_clock::now() - start);
 
   sched_mutex.lock();
-
-  // Update UI
-  if (ui) {
-    for (int i = 0; i < players.size(); i++) {
-      ui->getWindow(i)->setTimePos(players[i]->getCurrentPos());
-    }
-  } else {
-    for (int i = 0; i < players.size(); i++) {
-      std::cout << "currentPos: " << players[i]->getCurrentPos();
-    }
-  }
 
   if (sched.empty()) {
     sched_mutex.unlock();
@@ -72,22 +59,16 @@ void Controller::pushEvent(std::function<void()> event, int delayMillis) {
 void Controller::ctlSeek(int playerIndex, double controlValue) {
   double seekPos = players[playerIndex]->getDuration() * controlValue;
   players[playerIndex]->seek(seekPos);
-  if (ui)
-    ui->getWindow(playerIndex)->setTimePos(seekPos);
 }
 
 void Controller::ctlLoopStart(int playerIndex, double controlValue) {
   double loopStart = players[playerIndex]->getDuration() * controlValue;
   players[playerIndex]->set_loop_start(loopStart);
-  if (ui)
-    ui->getWindow(playerIndex)->setLoopStart(loopStart);
 }
 
 void Controller::ctlLoopLength(int playerIndex, double controlValue) {
   double loopLength = 16 * controlValue;
   players[playerIndex]->set_loop_length(loopLength);
-  if (ui)
-    ui->getWindow(playerIndex)->setLoopLength(loopLength);
 }
 
 void Controller::ctlLoopEnd(int playerIndex, double controlValue) {
@@ -100,8 +81,6 @@ void Controller::ctlSpeed(int playerIndex, double controlValue) {
   double speed =
       controlValue * (max_speed - 0.25) + 0.25; // Min speed is 0.25 with audio
   players[playerIndex]->set_rate(speed);
-  if (ui)
-    ui->getWindow(playerIndex)->setSpeed(speed);
 }
 
 void Controller::ctlPitch(int playerIndex, double controlValue) {
@@ -109,15 +88,11 @@ void Controller::ctlPitch(int playerIndex, double controlValue) {
   int semitones = static_cast<int>(controlValue * 24) - 12;
   players[playerIndex]->setPitch(semitones);
   double doublesemitones = static_cast<double>(semitones); // TODO fix this
-  if (ui)
-    ui->getWindow(playerIndex)->setPitch(doublesemitones);
 }
 
 void Controller::ctlVolume(int playerIndex, double controlValue) {
   double volume = controlValue * 100;
   players[playerIndex]->setVolume(volume);
-  if (ui)
-    ui->getWindow(playerIndex)->setVolume(volume);
 }
 
 //
@@ -131,8 +106,6 @@ void Controller::scrubSeek(int playerIndex, int controlValue) {
   double pos =
       player->getCurrentPos() + static_cast<double>(controlValue) * scrubRate;
   player->seek(pos);
-  if (ui)
-    ui->getWindow(playerIndex)->setTimePos(pos);
 }
 
 // Calls loop start on player
@@ -141,8 +114,6 @@ void Controller::scrubLoopStart(int playerIndex, int controlValue) {
   double loopStart =
       player->getLoopStart() + static_cast<double>(controlValue) * scrubRate;
   player->set_loop_start(loopStart);
-  if (ui)
-    ui->getWindow(playerIndex)->setLoopStart(loopStart);
 }
 
 // Calls loop length on player
@@ -151,8 +122,6 @@ void Controller::scrubLoopLength(int playerIndex, int controlValue) {
   double length =
       player->getLoopLength() + static_cast<double>(controlValue) * scrubRate;
   player->set_loop_length(length);
-  if (ui)
-    ui->getWindow(playerIndex)->setLoopLength(length);
 }
 
 // Calls loop end
@@ -173,8 +142,6 @@ void Controller::scrubSpeed(int playerIndex, int controlValue) {
   else if (speed < min_speed)
     speed = min_speed;
   players[playerIndex]->set_rate(speed);
-  if (ui)
-    ui->getWindow(playerIndex)->setSpeed(speed);
 }
 
 // Calls pitch control
@@ -186,10 +153,6 @@ void Controller::scrubPitch(int playerIndex, int controlValue) {
   else if (controlValue < 0)
     pitch--;
   player->setPitch(pitch);
-  if (ui) {
-    double pitchdouble = static_cast<double>(pitch);
-    ui->getWindow(playerIndex)->setPitch(pitchdouble);
-  }
 }
 
 // Calls volume control
@@ -203,7 +166,6 @@ void Controller::scrubVolume(int playerIndex, int controlValue) {
 
   if ((volume > 0) && (volume < 100)) {
     player->setVolume(volume);
-    ui->getWindow(playerIndex)->setVolume(volume);
   }
 }
 
