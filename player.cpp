@@ -123,12 +123,12 @@ double Player::getPitch() { return pitch; }
 
 double Player::getVolume() { return volume; }
 
-std::string_view Player::getTitle() {
-  std::string_view title_str(title);
+std::string Player::getTitle() {
+  std::string title_str(title);
   return title_str;
 }
 
-std::string_view Player::getPath() { return path; }
+std::string Player::getPath() { return path; }
 
 double Player::getProgress() { return getCurrentPos() / getDuration(); }
 
