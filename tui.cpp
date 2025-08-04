@@ -21,22 +21,23 @@ void TuiApp::setActiveWindow(const int &id) {}
 
 // Called each frame, updates each window and then displays to screen
 void TuiApp::update() {
-  int counter = 1;
+  int counter = 0;
   for (std::unique_ptr<Player> &player : players) {
-    mvwprintw(stdscr, 0, 2, "| %d | ", counter);
+    mvwprintw(stdscr, counter * 2, 2, "| %d | ", counter);
     // Display player info if player is loaded
     wprintw(stdscr, "%s", player->getTitle().c_str());
 
     wprintw(stdscr, " | %.2f |", player->getCurrentPos());
 
-    mvwprintw(stdscr, 2, 2, "loop[%.2f, %.2f]", player->getLoopStart(),
-              player->getLoopEnd());
-    mvwprintw(stdscr, 3, 2, "speed[%.2f]", player->getSpeed());
-    mvwprintw(stdscr, 4, 2, "pitch[%.2f]", player->getPitch());
-    mvwprintw(stdscr, 5, 2, "volume[%.2f]", player->getVolume());
+    wprintw(stdscr, "loop[%.2f, %.2f]", player->getLoopStart(),
+            player->getLoopEnd());
+    wprintw(stdscr, "speed[%.2f]", player->getSpeed());
+    wprintw(stdscr, "pitch[%.2f]", player->getPitch());
+    wprintw(stdscr, "volume[%.2f]", player->getVolume());
 
     // Print contents to virtual screen
     wnoutrefresh(stdscr);
+    counter++;
   }
   // for (std::unique_ptr<PlayerWindow> &window : windows) {
   //   window->update();

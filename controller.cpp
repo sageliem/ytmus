@@ -57,26 +57,36 @@ void Controller::pushEvent(std::function<void()> event, int delayMillis) {
 // These can be overloaded to push themselves to the scheduler queue by adding
 // a millisecond delay.
 void Controller::ctlSeek(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   double seekPos = players[playerIndex]->getDuration() * controlValue;
   players[playerIndex]->seek(seekPos);
 }
 
 void Controller::ctlLoopStart(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   double loopStart = players[playerIndex]->getDuration() * controlValue;
   players[playerIndex]->set_loop_start(loopStart);
 }
 
 void Controller::ctlLoopLength(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   double loopLength = 16 * controlValue;
   players[playerIndex]->set_loop_length(loopLength);
 }
 
 void Controller::ctlLoopEnd(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   players[playerIndex]->set_loop_end(players[playerIndex]->getDuration() *
                                      controlValue);
 }
 
 void Controller::ctlSpeed(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   double max_speed = 4.0;
   double speed =
       controlValue * (max_speed - 0.25) + 0.25; // Min speed is 0.25 with audio
@@ -84,6 +94,8 @@ void Controller::ctlSpeed(int playerIndex, double controlValue) {
 }
 
 void Controller::ctlPitch(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   // Map to integer range -12 - 12
   int semitones = static_cast<int>(controlValue * 24) - 12;
   players[playerIndex]->setPitch(semitones);
@@ -91,6 +103,8 @@ void Controller::ctlPitch(int playerIndex, double controlValue) {
 }
 
 void Controller::ctlVolume(int playerIndex, double controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   double volume = controlValue * 100;
   players[playerIndex]->setVolume(volume);
 }
@@ -99,10 +113,9 @@ void Controller::ctlVolume(int playerIndex, double controlValue) {
 // SCRUB methods for relative controls (send -2<value<2)
 //
 void Controller::scrubSeek(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   std::unique_ptr<Player> &player = players[playerIndex];
-  std::cout << "scrubSeek: " << controlValue << '\n';
-  //    players->at(playerIndex).seek( players->at(playerIndex).getDuration()
-  //    * controlValue );
   double pos =
       player->getCurrentPos() + static_cast<double>(controlValue) * scrubRate;
   player->seek(pos);
@@ -110,6 +123,8 @@ void Controller::scrubSeek(int playerIndex, int controlValue) {
 
 // Calls loop start on player
 void Controller::scrubLoopStart(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   std::unique_ptr<Player> &player = players[playerIndex];
   double loopStart =
       player->getLoopStart() + static_cast<double>(controlValue) * scrubRate;
@@ -118,6 +133,8 @@ void Controller::scrubLoopStart(int playerIndex, int controlValue) {
 
 // Calls loop length on player
 void Controller::scrubLoopLength(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   std::unique_ptr<Player> &player = players[playerIndex];
   double length =
       player->getLoopLength() + static_cast<double>(controlValue) * scrubRate;
@@ -126,6 +143,8 @@ void Controller::scrubLoopLength(int playerIndex, int controlValue) {
 
 // Calls loop end
 void Controller::scrubLoopEnd(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   std::unique_ptr<Player> &player = players[playerIndex];
   player->set_loop_end(player->getLoopEnd() +
                        static_cast<double>(controlValue) * scrubRate);
@@ -133,6 +152,8 @@ void Controller::scrubLoopEnd(int playerIndex, int controlValue) {
 
 // Calls speed control
 void Controller::scrubSpeed(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   double max_speed = 4.0;
   double min_speed = 0.25;
   double speed = players[playerIndex]->getSpeed();
@@ -146,6 +167,8 @@ void Controller::scrubSpeed(int playerIndex, int controlValue) {
 
 // Calls pitch control
 void Controller::scrubPitch(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   std::unique_ptr<Player> &player = players[playerIndex];
   int pitch = player->getPitch();
   if (controlValue > 0)
@@ -157,6 +180,8 @@ void Controller::scrubPitch(int playerIndex, int controlValue) {
 
 // Calls volume control
 void Controller::scrubVolume(int playerIndex, int controlValue) {
+  if (playerIndex > players.size() - 1)
+    return;
   std::unique_ptr<Player> &player = players[playerIndex];
   double volume = player->getVolume();
   if (controlValue > 0)

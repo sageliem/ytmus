@@ -25,8 +25,10 @@ void midiCallback(double deltatime, std::vector<unsigned char> *message,
     parentHandler->midiCCEvent(midiNumber, midiValue);
     break;
   case 0x9: // NOTE_ON
-    if (midiNumber >= 48 && midiNumber <= 56)
-      parentHandler->setActivePlayer(static_cast<int>(midiNumber) - 48);
+    if (midiNumber >= 36 && midiNumber <= 48)
+      parentHandler->setActivePlayer(static_cast<int>(midiNumber) - 36);
+    // if (midiNumber >= 0 && midiNumber <= 7)
+    //   parentHandler->setActivePlayer(static_cast<int>(midiNumber));
     break;
   case 0x8: // NOTE_OFF
     break;
