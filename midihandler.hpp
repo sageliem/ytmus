@@ -37,4 +37,5 @@ public:
   void setRelativeKnobs(bool knobSetting);
   void setActivePlayer(int playerIndex);
   void midiCCEvent(int midiCCNumber, int midiCCValue);
+  void showConfig();
 };

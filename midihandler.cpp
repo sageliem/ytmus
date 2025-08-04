@@ -54,7 +54,7 @@ void MidiHandler::setup() {
   mapping[BUFFER0_MAP] = cfg["midi"]["buffer0"].as<int>();
 
   std::cout << "Config loaded from config.ini\n";
-  std::cout << "Seek Knob: " << cfg["midi"]["seek"].as<int>() << '\n';
+  showConfig();
 
   // Get port count
   unsigned int nPorts{midi.getPortCount()};
@@ -124,24 +124,22 @@ void MidiHandler::midiCCEvent(int midiCCNumber, int midiCCValue) {
 }
 
 void MidiHandler::midiCCEventRelative(int midiCCNumber, int midiCCValue) {
-  switch (midiCCNumber) {
-  case SEEK_MAP:
+  if (midiCCNumber == mapping[SEEK_MAP])
     controller->scrubSeek(activePlayer, midiCCValue - 64);
-    break;
-  case SPEED_MAP:
+  else if (midiCCNumber == mapping[SPEED_MAP])
     controller->scrubSpeed(activePlayer, midiCCValue - 64);
-    break;
-  case LOOPSTART_MAP:
+  else if (midiCCNumber == mapping[LOOPSTART_MAP])
     controller->scrubLoopStart(activePlayer, midiCCValue - 64);
-    break;
-  case LOOPLENGTH_MAP:
+  else if (midiCCNumber == mapping[LOOPLENGTH_MAP])
     controller->scrubLoopLength(activePlayer, midiCCValue - 64);
-    break;
-  case PITCH_MAP:
+  else if (midiCCNumber == mapping[PITCH_MAP])
     controller->scrubPitch(activePlayer, midiCCValue - 64);
-    break;
-  case VOLUME_MAP:
+  else if (midiCCNumber == mapping[VOLUME_MAP])
     controller->scrubVolume(activePlayer, midiCCValue - 64);
-    break;
+}
+
+void MidiHandler::showConfig() {
+  for (auto midimap : mapping) {
+    std::cout << midimap.first << ": " << midimap.second << std::endl;
   }
 }
